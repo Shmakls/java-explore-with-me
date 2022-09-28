@@ -7,6 +7,7 @@ import ru.andrianov.emw.categories.model.Category;
 import ru.andrianov.emw.events.model.Location;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -30,7 +31,7 @@ public class EventToGetDto {
 
     private UserInitiatorDto initiator;
 
-    private Location location;
+    private Point location;
 
     private boolean paid;
 
@@ -44,5 +45,6 @@ public class EventToGetDto {
 
     private String title;
 
+    private Long views;
 
 }

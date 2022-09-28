@@ -2,6 +2,7 @@ package ru.andrianov.emw.events.service;
 
 import org.springframework.data.domain.Pageable;
 import ru.andrianov.emw.events.model.Event;
+import ru.andrianov.emw.events.model.EventSort;
 import ru.andrianov.emw.events.model.EventState;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,13 @@ public interface EventService {
 
     boolean existById(Long id);
 
+    List<Event> getEventsByUserId(Long userId,Integer from, Integer size);
+
     List<Event> getEventsByParams(List<Long> users, List<EventState> states, List<Long> categories,
                                   LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    List<Event> searchEventsByText(String text, List<Long> categoriesId,
+                                   boolean paid, LocalDateTime start, LocalDateTime end,
+                                   EventSort eventSort, Integer from, Integer size);
+
 }

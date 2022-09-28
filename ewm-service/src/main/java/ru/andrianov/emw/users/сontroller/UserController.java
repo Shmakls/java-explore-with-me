@@ -1,4 +1,4 @@
-package ru.andrianov.emw.business.controllers.admin;
+package ru.andrianov.emw.users.сontroller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -3,6 +3,8 @@ package ru.andrianov.emw.compilations.service;
 import ru.andrianov.emw.compilations.model.Compilation;
 import ru.andrianov.emw.compilations.model.CompilationForList;
 
+import java.util.List;
+
 public interface CompilationService {
     Compilation addNewCompilationByAdmin(Compilation compilation);
 
@@ -19,5 +21,9 @@ public interface CompilationService {
     Compilation getCompilationById(Long compilationId);
 
     Compilation updateCompilationById(Compilation compilation);
+
+    List<CompilationForList> getListOfCompilationsForListByCompilationId(Long compilationId);
+
+    List<Compilation> getAllCompilationsByPinnedByPages(boolean pinned, Integer from, Integer size);
 
 }

@@ -3,6 +3,7 @@ package ru.andrianov.emw.events.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.awt.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -35,9 +36,7 @@ public class Event {
 
     private LocalDateTime eventDate;
 
-    private float lat;
-
-    private float lon;
+    private Point location;
 
     private boolean paid;
 

@@ -2,15 +2,14 @@ package ru.andrianov.emw.compilations.model;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
+@Entity
 @Table(name = "compilation_list", schema = "public")
 public class CompilationForList {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

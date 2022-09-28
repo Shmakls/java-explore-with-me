@@ -1,6 +1,8 @@
 package ru.andrianov.emw.events.mapper;
 
+import lombok.RequiredArgsConstructor;
 import ru.andrianov.emw.categories.model.Category;
+import ru.andrianov.emw.events.client.EventClient;
 import ru.andrianov.emw.events.dto.EventToCompilationDto;
 import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
@@ -10,6 +12,7 @@ import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 public class EventMapper {
 
     public static Event toEventFromEventToCreateDto(EventToCreateDto eventToCreateDto) {
@@ -22,8 +25,7 @@ public class EventMapper {
         event.setDescription(eventToCreateDto.getDescription());
         event.setCreatedOn(eventToCreateDto.getCreatedOn());
         event.setEventDate(eventToCreateDto.getEventDate());
-        event.setLat(eventToCreateDto.getLocation().getLat());
-        event.setLon(eventToCreateDto.getLocation().getLon());
+        event.setLocation(eventToCreateDto.getLocation());
         event.setPaid(eventToCreateDto.isPaid());
         event.setParticipantLimit(eventToCreateDto.getParticipantLimit());
         event.setRequestModeration(eventToCreateDto.isRequestModeration());
@@ -62,7 +64,7 @@ public class EventMapper {
         eventToGetDto.setDescription(event.getDescription());
         eventToGetDto.setEventDate(event.getEventDate());
         eventToGetDto.setInitiator(new UserInitiatorDto(event.getInitiator()));
-        eventToGetDto.setLocation(new Location(event.getLat(), event.getLon()));
+        eventToGetDto.setLocation(event.getLocation());
         eventToGetDto.setPaid(event.isPaid());
         eventToGetDto.setParticipantLimit(event.getParticipantLimit());
         Optional.ofNullable(event.getPublishedOn()).ifPresent(eventToGetDto::setPublishedOn);

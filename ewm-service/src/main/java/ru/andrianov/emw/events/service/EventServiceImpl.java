@@ -2,10 +2,13 @@ package ru.andrianov.emw.events.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.events.exceptions.EventNotFoundException;
 import ru.andrianov.emw.events.model.Event;
+import ru.andrianov.emw.events.model.EventSort;
 import ru.andrianov.emw.events.model.EventState;
 import ru.andrianov.emw.events.repository.EventRepository;
 
@@ -51,7 +54,32 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void deleteEventById(Long id) {
+        if (!existById(id)) {
+            log.error("EventService.deleteEventById: event with id={} do not exists", id);
+            throw new EventNotFoundException("event not found");
+        }
 
+        eventRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Event> searchEventsByText(String text, List<Long> categoriesId,
+                                          boolean paid, LocalDateTime start, LocalDateTime end,
+                                          EventSort eventSort, Integer from, Integer size) {
+
+        String fieldToSort = "";
+
+        if (eventSort == EventSort.EVENT_DATE) {
+            fieldToSort = "eventDate";
+        } else if (eventSort == EventSort.VIEWS) {
+            fieldToSort = "views";
+        }
+
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by(fieldToSort).descending());
+
+        return eventRepository
+                .searchEventsByAnnotationContainingAndDescriptionContainingAndCategoryInAndPaidAndEventDateBetween(
+                        text, text, categoriesId, paid, start, end, pageable).getContent();
     }
 
     @Override
@@ -70,5 +98,13 @@ public class EventServiceImpl implements EventService {
                                          LocalDateTime end, Pageable pageable) {
         return eventRepository.getEventsByInitiatorInAndStateInAndCategoryInAndEventDateBetween(
                 users, states, categories, start, end, pageable).getContent();
+    }
+
+    @Override
+    public List<Event> getEventsByUserId(Long userId, Integer from, Integer size) {
+
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
+
+        return eventRepository.getEventsByInitiator(userId, pageable).getContent();
     }
 }

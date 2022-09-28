@@ -2,6 +2,9 @@ package ru.andrianov.emw.compilations.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.compilations.exceptions.CompilationNotFoundException;
 import ru.andrianov.emw.compilations.model.Compilation;
@@ -53,6 +56,17 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    public List<CompilationForList> getListOfCompilationsForListByCompilationId(Long compilationId) {
+
+        if(!existCompilationById(compilationId)) {
+            log.error("CompilationService.getListOfCompilationsForListByCompilationId: compilation with id={} not found", compilationId);
+            throw new CompilationNotFoundException("compilation not found");
+        }
+
+        return compilationListRepository.findAllByCompilationId(compilationId);
+    }
+
+    @Override
     public Compilation updateCompilationById(Compilation compilation) {
 
         if(!existCompilationById(compilation.getId())) {
@@ -62,6 +76,14 @@ public class CompilationServiceImpl implements CompilationService {
 
         return compilationRepository.save(compilation);
 
+    }
+
+    @Override
+    public List<Compilation> getAllCompilationsByPinnedByPages(boolean pinned, Integer from, Integer size) {
+
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").ascending());
+
+        return compilationRepository.findCompilationsByPinned(pinned, pageable).getContent();
     }
 
     @Override

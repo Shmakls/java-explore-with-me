@@ -4,6 +4,7 @@ package ru.andrianov.emw.events.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.EventState;
 
@@ -18,5 +19,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                                                                  LocalDateTime start,
                                                                                  LocalDateTime end,
                                                                                  Pageable pageable);
+
+    Page<Event> searchEventsByAnnotationContainingAndDescriptionContainingAndCategoryInAndPaidAndEventDateBetween(
+            String text1, String text2, List<Long> categoriesId, boolean paid,
+            LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    Page<Event> getEventsByInitiator(Long userId, Pageable pageable);
 
 }

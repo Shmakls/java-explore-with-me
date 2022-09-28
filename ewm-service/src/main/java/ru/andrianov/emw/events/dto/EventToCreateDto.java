@@ -7,6 +7,7 @@ import ru.andrianov.emw.events.model.Location;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.awt.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -32,7 +33,7 @@ public class EventToCreateDto {
     private LocalDateTime eventDate;
 
     @NotNull
-    private Location location;
+    private Point location;
 
     @NotNull
     private boolean paid;
