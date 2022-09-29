@@ -126,7 +126,7 @@ public class AdminServiceImpl implements AdminService {
 
         for (Long eventId : eventsId) {
 
-            if(!eventService.existById(eventId)) {
+            if (!eventService.existById(eventId)) {
                 log.error("AdminService.addNewCompilationByAdmin: event with id={} not found", eventId);
                 throw new EventNotFoundException("event not found");
             }
@@ -178,7 +178,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void addEventToCompilationByIdByAdmin(Long compId, Long eventId) {
 
-        if(!eventService.existById(eventId)) {
+        if (!eventService.existById(eventId)) {
             log.error("AdminService.addEventToCompilationByIdByAdmin: event with id={} not found", eventId);
             throw new EventNotFoundException("event not found");
         }

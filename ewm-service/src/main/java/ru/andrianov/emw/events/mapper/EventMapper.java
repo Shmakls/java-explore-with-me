@@ -2,12 +2,10 @@ package ru.andrianov.emw.events.mapper;
 
 import lombok.RequiredArgsConstructor;
 import ru.andrianov.emw.categories.model.Category;
-import ru.andrianov.emw.events.client.EventClient;
 import ru.andrianov.emw.events.dto.EventToCompilationDto;
 import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
 import ru.andrianov.emw.events.model.Event;
-import ru.andrianov.emw.events.model.Location;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
 import java.util.Optional;

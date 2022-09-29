@@ -48,7 +48,7 @@ public class PublicApiServiceImpl implements PublicApiService {
 
     private final EventClient eventClient;
 
-    private final String SERVICE_APP = "emw-service";
+    private final String serviceApp = "emw-service";
 
 
     @Override
@@ -99,7 +99,7 @@ public class PublicApiServiceImpl implements PublicApiService {
             throw new EventNotFoundException("event not published");
         }
 
-        eventClient.saveStat(SERVICE_APP, request.getRequestURI(), request.getRemoteAddr());
+        eventClient.saveStat(serviceApp, request.getRequestURI(), request.getRemoteAddr());
 
         return setCategoryNameAndInitiatorName(EventMapper.toGetDto(event));
     }
@@ -113,7 +113,7 @@ public class PublicApiServiceImpl implements PublicApiService {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusYears(3);
 
-        if(!StringUtils.hasText(rangeStart) || !StringUtils.hasText(rangeEnd)) {
+        if (!StringUtils.hasText(rangeStart) || !StringUtils.hasText(rangeEnd)) {
             start = LocalDateTime.parse(rangeStart);
             end = LocalDateTime.parse(rangeEnd);
         }
@@ -121,14 +121,9 @@ public class PublicApiServiceImpl implements PublicApiService {
         List<Event> events = eventService.searchEventsByText(text, categoriesId, paid,
                 start, end, eventSort, from, size);
 
-        Predicate<Event> onlyAvailablePredicate = new Predicate<Event>() {
-            @Override
-            public boolean test(Event event) {
-                return event.getConfirmedRequests() < event.getParticipantLimit();
-            }
-        };
+        Predicate<Event> onlyAvailablePredicate = event -> event.getConfirmedRequests() < event.getParticipantLimit();
 
-        eventClient.saveStat(SERVICE_APP, request.getRequestURI(), request.getRemoteAddr());
+        eventClient.saveStat(serviceApp, request.getRequestURI(), request.getRemoteAddr());
 
         if (onlyAvailable) {
             return events.stream()

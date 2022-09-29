@@ -3,7 +3,6 @@ package ru.andrianov.emw.events.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.andrianov.emw.events.model.Location;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

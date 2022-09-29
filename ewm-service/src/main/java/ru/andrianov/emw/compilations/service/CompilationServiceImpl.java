@@ -47,7 +47,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public Compilation getCompilationById(Long compilationId) {
 
-        if(!existCompilationById(compilationId)) {
+        if (!existCompilationById(compilationId)) {
             log.error("CompilationService.getCompilationById: compilation with id={} not found", compilationId);
             throw new CompilationNotFoundException("compilation not found");
         }
@@ -58,7 +58,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public List<CompilationForList> getListOfCompilationsForListByCompilationId(Long compilationId) {
 
-        if(!existCompilationById(compilationId)) {
+        if (!existCompilationById(compilationId)) {
             log.error("CompilationService.getListOfCompilationsForListByCompilationId: compilation with id={} not found", compilationId);
             throw new CompilationNotFoundException("compilation not found");
         }
@@ -69,7 +69,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public Compilation updateCompilationById(Compilation compilation) {
 
-        if(!existCompilationById(compilation.getId())) {
+        if (!existCompilationById(compilation.getId())) {
             log.error("CompilationService.getCompilationById: compilation with id={} not found", compilation.getId());
             throw new CompilationNotFoundException("compilation not found");
         }
@@ -93,7 +93,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public boolean existEventInCompilationById(Long compilationId, Long eventId) {
-        if(!existCompilationById(compilationId)) {
+        if (!existCompilationById(compilationId)) {
             log.error("CompilationService.existEventInCompilationById: compilation with id={} not found", compilationId);
             throw new CompilationNotFoundException("compilation not found");
         }
