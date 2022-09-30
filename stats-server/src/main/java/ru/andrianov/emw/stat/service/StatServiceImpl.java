@@ -3,8 +3,6 @@ package ru.andrianov.emw.stat.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.andrianov.emw.stat.dto.EndpointHitsToDistinctIpDto;
-import ru.andrianov.emw.stat.mapper.EndpointHitMapper;
 import ru.andrianov.emw.stat.model.EndpointHit;
 import ru.andrianov.emw.stat.model.EndpointStat;
 import ru.andrianov.emw.stat.repository.StatRepository;
@@ -36,42 +34,25 @@ public class StatServiceImpl implements StatService {
         LocalDateTime startTime = LocalDateTime.parse(start, formatter);
         LocalDateTime endTime = LocalDateTime.parse(end, formatter);
 
-        List<EndpointHit> hits = statRepository.findEndpointHitsByUriInAndTimestampBetween(uris, startTime, endTime);
-
         List<EndpointStat> endpointStats = new ArrayList<>();
 
+        List<EndpointHit> hits;
+
         if (unique) {
-
-            for (String uri : uris) {
-                List<EndpointHitsToDistinctIpDto> hitsByUriDistinct = hits.stream()
-                        .filter(x -> x.getUri().equals(uri))
-                        .map(EndpointHitMapper::toEndpointHitsToDistinctIpDto)
-                        .distinct()
-                        .collect(Collectors.toList());
-
-                if (hitsByUriDistinct.size() > 0) {
-                    endpointStats.add(new EndpointStat(hitsByUriDistinct.get(0).getApp(),
-                            hitsByUriDistinct.get(0).getUri(),
-                            (long) hitsByUriDistinct.size()));
-                }
-            }
-
+            hits = statRepository.findStatByUrisByTimeDistinct(startTime, endTime, uris);
         } else {
+            hits = statRepository.findEndpointHitsByUriInAndTimestampBetween(uris, startTime, endTime);
+        }
 
-            for (String uri : uris) {
-                List<EndpointHitsToDistinctIpDto> hitsByUri = hits.stream()
-                        .filter(x -> x.getUri().equals(uri))
-                        .map(EndpointHitMapper::toEndpointHitsToDistinctIpDto)
-                        .collect(Collectors.toList());
+        for (String uri : uris) {
+            hits = hits.stream()
+                    .filter(x -> x.getUri().equals(uri))
+                    .collect(Collectors.toList());
 
-                if (hitsByUri.size() > 0) {
-
-                    endpointStats.add(new EndpointStat(hitsByUri.get(0).getApp(),
-                            hitsByUri.get(0).getUri(),
-                            (long) hitsByUri.size()));
-                }
-
-
+            if (hits.size() > 0) {
+                endpointStats.add(new EndpointStat(hits.get(0).getApp(),
+                        hits.get(0).getUri(),
+                        (long) hits.size()));
             }
         }
 

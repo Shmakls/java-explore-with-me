@@ -9,7 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>stats-service</artifactId>
+    <name>stats-server</name>
+
+    <artifactId>stats-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
