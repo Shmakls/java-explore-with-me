@@ -1,32 +1,41 @@
 package ru.andrianov.emw.business.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.categories.service.CategoryService;
 import ru.andrianov.emw.compilations.dto.CompilationDto;
+import ru.andrianov.emw.compilations.dto.CompilationToCreateDto;
 import ru.andrianov.emw.compilations.exceptions.CompilationNotFoundException;
 import ru.andrianov.emw.compilations.mapper.CompilationMapper;
 import ru.andrianov.emw.compilations.model.Compilation;
-import ru.andrianov.emw.compilations.model.CompilationForList;
 import ru.andrianov.emw.compilations.service.CompilationService;
+import ru.andrianov.emw.events.client.EventClient;
 import ru.andrianov.emw.events.dto.EventToCompilationDto;
-import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
+import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
 import ru.andrianov.emw.events.exceptions.DuplicateEventException;
 import ru.andrianov.emw.events.exceptions.EventNotFoundException;
 import ru.andrianov.emw.events.exceptions.WrongEventStateException;
 import ru.andrianov.emw.events.mapper.EventMapper;
+import ru.andrianov.emw.events.model.EndpointStat;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.EventState;
 import ru.andrianov.emw.events.service.EventService;
 import ru.andrianov.emw.users.service.UserService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,6 +52,8 @@ public class AdminServiceImpl implements AdminService {
 
     private final CompilationService compilationService;
 
+    private final EventClient eventClient;
+
     @Override
     public List<EventToGetDto> eventSearchByAdmin(List<Long> users, List<String> states,
                                             List<Long> categories, String rangeStart,
@@ -50,8 +61,10 @@ public class AdminServiceImpl implements AdminService {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
 
-        LocalDateTime start = LocalDateTime.parse(rangeStart);
-        LocalDateTime end = LocalDateTime.parse(rangeEnd);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
+        LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
 
         List<EventState> eventStates = states.stream()
                 .map(EventState::from)
@@ -69,11 +82,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public EventToGetDto updateEventByAdmin(EventToCreateDto eventToCreateDto, Long eventId) {
+    public EventToGetDto updateEventByAdmin(EventToUpdateByAdminDto eventToUpdateByAdminDto, Long eventId) {
 
-        Event event = eventService.updateEvent(EventMapper.toEventFromEventToCreateDto(eventToCreateDto));
+        Event event = eventService.getEventById(eventId);
 
-        EventToGetDto eventToGetDto = EventMapper.toGetDto(event);
+        Event eventToUpdate = EventMapper.eventConstructorToUpdateEvent(event, eventToUpdateByAdminDto);
+
+        eventToUpdate = eventService.updateEvent(eventToUpdate);
+
+        EventToGetDto eventToGetDto = EventMapper.toGetDto(eventToUpdate);
 
         return setCategoryNameAndInitiatorName(eventToGetDto);
 
@@ -84,7 +101,7 @@ public class AdminServiceImpl implements AdminService {
 
         Event event = eventService.getEventById(eventId);
 
-        if (event.getState() != EventState.WAITING) {
+        if (event.getState() != EventState.PENDING) {
             log.error("AdminService.publishEventByAdmin: event state should be WAITING, not {}",event.getState().toString());
             throw new WrongEventStateException("status to change must be WAITING");
         }
@@ -97,6 +114,8 @@ public class AdminServiceImpl implements AdminService {
 
         event.setState(EventState.PUBLISHED);
 
+        event = eventService.updateEvent(event);
+
         return setCategoryNameAndInitiatorName(EventMapper.toGetDto(event));
 
     }
@@ -106,42 +125,48 @@ public class AdminServiceImpl implements AdminService {
 
         Event event = eventService.getEventById(eventId);
 
-        if (event.getState() != EventState.WAITING) {
+        if (event.getState() != EventState.PENDING) {
             log.error("AdminService.rejectEventByAdmin: event state should be WAITING, not {}",event.getState().toString());
             throw new WrongEventStateException("status to change must be WAITING");
         }
 
-        event.setState(EventState.REJECTED);
+        event.setState(EventState.CANCELED);
 
         return setCategoryNameAndInitiatorName(EventMapper.toGetDto(event));
 
     }
 
     @Override
-    public List<EventToCompilationDto> addNewCompilationByAdmin(CompilationDto compilationDto) {
+    public CompilationDto addNewCompilationByAdmin(CompilationToCreateDto compilationToCreateDto) {
 
-        Compilation compilation = compilationService.addNewCompilationByAdmin(CompilationMapper.fromDto(compilationDto));
-
-        List<Long> eventsId = compilationDto.getEvents();
+        List<Long> eventsId = compilationToCreateDto.getEvents();
 
         for (Long eventId : eventsId) {
-
             if (!eventService.existById(eventId)) {
-                log.error("AdminService.addNewCompilationByAdmin: event with id={} not found", eventId);
+                log.error("AdminService.addNewCompilationByAdmin: event with id={} not exist", eventId);
                 throw new EventNotFoundException("event not found");
             }
-
-            CompilationForList compilationForList = new CompilationForList();
-            compilationForList.setEventId(eventId);
-            compilationForList.setCompilationId(compilation.getId());
-            compilationService.saveCompilationList(compilationForList);
-
         }
 
-        return eventsId.stream()
+        Compilation compilation = CompilationMapper.fromCreateDto(compilationToCreateDto);
+
+        compilation.setEvents(eventsId
+                .stream()
                 .map(eventService::getEventById)
+                .collect(Collectors.toList()));
+
+        compilation = compilationService.addNewCompilationByAdmin(compilation);
+
+        List<EventToCompilationDto> events = compilation.getEvents()
+                .stream()
                 .map(EventMapper::toCompilationDto)
+                .peek(this::setCategoryNameAndInitiatorName)
                 .collect(Collectors.toList());
+
+        CompilationDto compilationDto = CompilationMapper.toDto(compilation);
+        compilationDto.setEvents(events);
+
+        return compilationDto;
 
     }
 
@@ -165,13 +190,16 @@ public class AdminServiceImpl implements AdminService {
             throw new CompilationNotFoundException("compilation not found");
         }
 
-        if (!compilationService.existEventInCompilationById(compId, eventId)) {
-            log.error("AdminService.deleteCompilationById: event with id={} do not exist in compilation with id={}",
-                    eventId, compId);
+        if (!eventService.existById(eventId)) {
+            log.error("AdminService.deleteEventFromCompilationByIdAdmin: event with id={} not found", eventId);
             throw new EventNotFoundException("event not found");
         }
 
-        compilationService.deleteEventFromCompilationListById(eventId);
+        Event event = eventService.getEventById(eventId);
+
+        Compilation compilation = compilationService.getCompilationById(compId);
+        compilation.deleteEvent(event);
+        compilationService.updateCompilation(compilation);
 
     }
 
@@ -188,17 +216,17 @@ public class AdminServiceImpl implements AdminService {
             throw new CompilationNotFoundException("compilation not found");
         }
 
-        if (compilationService.existEventInCompilationById(compId, eventId)) {
+        Event event = eventService.getEventById(eventId);
+
+        if (compilationService.getCompilationById(compId).getEvents().contains(event)) {
             log.error("AdminService.addEventToCompilationByIdByAdmin: event with id={} already exist in compilation with id={}",
                     eventId, compId);
             throw new DuplicateEventException("event already exist in this compilation");
         }
 
-        CompilationForList compilationForList = new CompilationForList();
-        compilationForList.setCompilationId(compId);
-        compilationForList.setEventId(eventId);
-
-        compilationForList = compilationService.saveCompilationList(compilationForList);
+        Compilation compilation = compilationService.getCompilationById(compId);
+        compilation.addEvent(event);
+        compilationService.updateCompilation(compilation);
 
     }
 
@@ -214,7 +242,7 @@ public class AdminServiceImpl implements AdminService {
 
         compilation.setPinned(pinned);
 
-        compilation = compilationService.updateCompilationById(compilation);
+        compilation = compilationService.updateCompilation(compilation);
 
     }
 
@@ -225,4 +253,48 @@ public class AdminServiceImpl implements AdminService {
 
         return eventToGetDto;
     }
+
+    private EventToCompilationDto setCategoryNameAndInitiatorName(EventToCompilationDto eventToCompilationDto) {
+
+        eventToCompilationDto.getCategory().setName(categoryService.getCategoryNameById(eventToCompilationDto.getCategory().getId()));
+        eventToCompilationDto.getInitiator().setName(userService.getUserNameById(eventToCompilationDto.getInitiator().getId()));
+        eventToCompilationDto.setViews(getViewsFromStatServiceToEventsDto(eventToCompilationDto.getId()));
+
+        return eventToCompilationDto;
+    }
+
+    public Long getViewsFromStatServiceToEventsDto(Long eventId) {
+
+        String apiPrefix = "/events/";
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String start = LocalDateTime.now().minusYears(20).format(formatter);
+        String end = LocalDateTime.now().format(formatter);
+
+        List<String> uris = List.of(apiPrefix + eventId);
+
+        Map<String, Object> params = Map.of(
+                "start", start,
+                "end", end,
+                "uris", uris
+        );
+
+        ResponseEntity<Object> response = eventClient.getStat("/stats", params);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = null;
+        try {
+            node = mapper.readTree(response.getBody().toString());
+            List<EndpointStat> myObjects = Arrays.asList(mapper.readValue(node.toString(), EndpointStat[].class));
+            if (myObjects.size() > 0) {
+                return myObjects.get(0).getHits();
+            } else {
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }

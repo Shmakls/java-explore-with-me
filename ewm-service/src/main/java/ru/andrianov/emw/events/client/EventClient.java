@@ -8,9 +8,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.andrianov.emw.business.clients.BaseClient;
-import ru.andrianov.emw.events.model.EndpointHit;
+import ru.andrianov.emw.events.model.EndpointHitDto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Service
@@ -26,20 +27,20 @@ public class EventClient extends BaseClient {
 
     public ResponseEntity<Object> saveStat(String app, String uri, String ip) {
 
-        EndpointHit endpointHit = new EndpointHit();
+        EndpointHitDto endpointHitDto = new EndpointHitDto();
 
-        endpointHit.setApp(app);
-        endpointHit.setIp(ip);
-        endpointHit.setUri(uri);
-        endpointHit.setTimestamp(LocalDateTime.now());
+        endpointHitDto.setApp(app);
+        endpointHitDto.setIp(ip);
+        endpointHitDto.setUri(uri);
+        endpointHitDto.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        return post("/hit", endpointHit);
+        return post("/hit", endpointHitDto);
 
     }
 
     public ResponseEntity<Object> getStat(String path, Map<String, Object> params) {
 
-        return get("" + path, params);
+        return get("" + path + "?start={start}&end={end}&uris={uris}", params);
 
     }
 

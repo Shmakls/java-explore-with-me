@@ -9,4 +9,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     Page<Category> getCategoriesBy(Pageable pageable);
 
+    Category getCategoryById(Long categoryId);
+
 }

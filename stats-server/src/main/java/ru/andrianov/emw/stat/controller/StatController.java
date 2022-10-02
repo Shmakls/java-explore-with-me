@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.andrianov.emw.stat.model.EndpointHit;
+import ru.andrianov.emw.stat.model.EndpointHitDto;
 import ru.andrianov.emw.stat.model.EndpointStat;
 import ru.andrianov.emw.stat.service.StatService;
 
@@ -18,16 +19,16 @@ public class StatController {
     private final StatService statService;
 
     @PostMapping("/hit")
-    public EndpointHit saveStat(@RequestBody @Valid EndpointHit endpointHit) {
+    public EndpointHit saveStat(@RequestBody @Valid EndpointHitDto endpointHitDto) {
 
         log.info("StatController.saveStat: received a request to save statistic with params:\n" +
                 "app={},\n" +
                 "uri={},\n" +
                 "ip={},\n" +
                 "timestamp={}\n",
-                endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(), endpointHit.getTimestamp());
+                endpointHitDto.getApp(), endpointHitDto.getUri(), endpointHitDto.getIp(), endpointHitDto.getTimestamp());
 
-        return statService.saveStat(endpointHit);
+        return statService.saveStat(endpointHitDto);
 
     }
 

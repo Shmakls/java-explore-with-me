@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.andrianov.emw.categories.model.Category;
 import ru.andrianov.emw.categories.service.CategoryService;
-import ru.andrianov.emw.compilations.model.CompilationForList;
+import ru.andrianov.emw.compilations.dto.CompilationDto;
+import ru.andrianov.emw.compilations.exceptions.CompilationNotFoundException;
+import ru.andrianov.emw.compilations.mapper.CompilationMapper;
+import ru.andrianov.emw.compilations.model.Compilation;
 import ru.andrianov.emw.compilations.service.CompilationService;
 import ru.andrianov.emw.events.client.EventClient;
 import ru.andrianov.emw.events.dto.EventToCompilationDto;
@@ -27,6 +30,7 @@ import ru.andrianov.emw.users.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -62,31 +66,50 @@ public class PublicApiServiceImpl implements PublicApiService {
     }
 
     @Override
-    public List<List<EventToCompilationDto>> getCompilationsByPages(boolean pinned, Integer from, Integer size) {
+    public List<CompilationDto> getCompilationsByPages(boolean pinned, Integer from, Integer size) {
 
-        return compilationService.getAllCompilationsByPinnedByPages(pinned, from, size)
-                .stream()
-                .map(x -> List.of(x.getId()))
-                .map(x -> compilationService.getListOfCompilationsForListByCompilationId(x.get(0)))
-                .map(x -> x.stream().map(CompilationForList::getEventId).collect(Collectors.toList()))
-                .map(x -> x.stream().map(eventService::getEventById).collect(Collectors.toList()))
-                .map(x -> x.stream().map(EventMapper::toCompilationDto).collect(Collectors.toList()))
-                .peek(x -> x.stream().peek(this::setCategoryNameAndInitiatorName).collect(Collectors.toList()))
-                .collect(Collectors.toList());
+        List<Compilation> compilations = compilationService.getAllCompilationsByPinnedByPages(pinned, from, size);
 
+        List<CompilationDto> compilationDtos = new ArrayList<>();
+
+        for (Compilation compilation : compilations) {
+
+            CompilationDto compilationDto = CompilationMapper.toDto(compilation);
+
+            compilationDto.setEvents(compilation.getEvents()
+                    .stream()
+                    .map(EventMapper::toCompilationDto)
+                    .peek(this::setCategoryNameAndInitiatorName)
+                    .collect(Collectors.toList()));
+
+            compilationDtos.add(compilationDto);
+
+        }
+
+        return compilationDtos;
 
     }
 
     @Override
-    public List<EventToCompilationDto> getCompilationById(Long compilationId) {
+    public CompilationDto getCompilationById(Long compilationId) {
 
-        return compilationService.getListOfCompilationsForListByCompilationId(compilationId)
+        if (!compilationService.existCompilationById(compilationId)) {
+            log.error("PublicApiService.getCompilationById: compilation with id={} not exist", compilationId);
+            throw new CompilationNotFoundException("compilation not found");
+        }
+
+        Compilation compilation = compilationService.getCompilationById(compilationId);
+
+        List<EventToCompilationDto> events = compilation.getEvents()
                 .stream()
-                .map(CompilationForList::getEventId)
-                .map(eventService::getEventById)
                 .map(EventMapper::toCompilationDto)
                 .peek(this::setCategoryNameAndInitiatorName)
                 .collect(Collectors.toList());
+
+        CompilationDto compilationDto = CompilationMapper.toDto(compilation);
+        compilationDto.setEvents(events);
+
+        return compilationDto;
     }
 
     @Override
@@ -113,9 +136,10 @@ public class PublicApiServiceImpl implements PublicApiService {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusYears(3);
 
-        if (!StringUtils.hasText(rangeStart) || !StringUtils.hasText(rangeEnd)) {
-            start = LocalDateTime.parse(rangeStart);
-            end = LocalDateTime.parse(rangeEnd);
+        if (StringUtils.hasText(rangeStart) || StringUtils.hasText(rangeEnd)) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            start = LocalDateTime.parse(rangeStart, formatter);
+            end = LocalDateTime.parse(rangeEnd,formatter);
         }
 
         List<Event> events = eventService.searchEventsByText(text, categoriesId, paid,
@@ -160,7 +184,7 @@ public class PublicApiServiceImpl implements PublicApiService {
 
     private Long getViewsFromStatServiceToEventsDto(Long eventId) {
 
-        String apiPrefix = "http://localhost:8080/events/";
+        String apiPrefix = "/events/";
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String start = LocalDateTime.now().minusYears(20).format(formatter);
@@ -174,14 +198,18 @@ public class PublicApiServiceImpl implements PublicApiService {
                 "uris", uris
         );
 
-        ResponseEntity<Object> response = eventClient.getStat("stats", params);
+        ResponseEntity<Object> response = eventClient.getStat("/stats", params);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = null;
         try {
             node = mapper.readTree(response.getBody().toString());
             List<EndpointStat> myObjects = Arrays.asList(mapper.readValue(node.toString(), EndpointStat[].class));
-            return myObjects.get(0).getHits();
+            if (myObjects.size() > 0) {
+                return myObjects.get(0).getHits();
+            } else {
+                return null;
+            }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

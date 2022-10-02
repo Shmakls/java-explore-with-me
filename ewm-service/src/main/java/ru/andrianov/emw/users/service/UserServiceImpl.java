@@ -33,13 +33,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers(Integer from, Integer size) {
+    public List<UserDto> getUsersByIdInByPages(List<Long> ids, Integer from, Integer size) {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
 
-        log.info("UserService.getAllUsers: send a request to DB to get all list of users by pages");
+        log.info("UserService.getAllUsers: send a request to DB to get user by ids={} by pages", ids);
 
-        return userRepository.findAll(pageable).getContent()
+        return userRepository.getUsersByIdIn(ids, pageable).getContent()
                 .stream()
                 .map(UserMapper::toDto)
                 .collect(Collectors.toList());

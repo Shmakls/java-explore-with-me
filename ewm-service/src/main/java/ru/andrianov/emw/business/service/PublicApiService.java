@@ -1,7 +1,7 @@
 package ru.andrianov.emw.business.service;
 
 import ru.andrianov.emw.categories.model.Category;
-import ru.andrianov.emw.events.dto.EventToCompilationDto;
+import ru.andrianov.emw.compilations.dto.CompilationDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
 import ru.andrianov.emw.events.model.EventSort;
 
@@ -15,9 +15,9 @@ public interface PublicApiService {
 
     Category getCategoryById(Long categoryId);
 
-    List<List<EventToCompilationDto>> getCompilationsByPages(boolean pinned, Integer from, Integer size);
+    List<CompilationDto> getCompilationsByPages(boolean pinned, Integer from, Integer size);
 
-    List<EventToCompilationDto> getCompilationById(Long compilationId);
+    CompilationDto getCompilationById(Long compilationId);
 
     EventToGetDto getEventForPublicById(Long eventId, HttpServletRequest request);
 

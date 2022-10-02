@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.andrianov.emw.categories.model.Category;
+import ru.andrianov.emw.events.model.Location;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -26,11 +26,11 @@ public class EventToGetDto {
 
     private String description;
 
-    private LocalDateTime eventDate;
+    private String eventDate;
 
     private UserInitiatorDto initiator;
 
-    private Point location;
+    private Location location;
 
     private boolean paid;
 

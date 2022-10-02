@@ -8,6 +8,7 @@ import ru.andrianov.emw.business.service.PrivateApiService;
 import ru.andrianov.emw.business.service.PublicApiService;
 import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
+import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
 import ru.andrianov.emw.events.model.EventSort;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,12 +52,12 @@ public class EventController {
     }
 
     @PutMapping("/admin/events/{eventId}")
-    public EventToGetDto updateEventByAdmin(@RequestBody EventToCreateDto eventToCreateDto,
+    public EventToGetDto updateEventByAdmin(@RequestBody EventToUpdateByAdminDto eventToUpdateByAdminDto,
                                             @PathVariable Long eventId) {
 
         log.info("(Admin)EventController.updateEventByAdmin: received request to update event by admin");
 
-        return adminService.updateEventByAdmin(eventToCreateDto, eventId);
+        return adminService.updateEventByAdmin(eventToUpdateByAdminDto, eventId);
 
     }
 
@@ -89,7 +90,7 @@ public class EventController {
 
     @GetMapping("/events")
     public List<EventToGetDto> searchEventsByParams(@RequestParam String text,
-                                                    @RequestParam List<Long> categoriesId,
+                                                    @RequestParam List<Long> categories,
                                                     @RequestParam(required = false, defaultValue = "false") boolean paid,
                                                     @RequestParam(required = false, defaultValue = "") String rangeStart,
                                                     @RequestParam(required = false, defaultValue = "") String rangeEnd,
@@ -109,12 +110,12 @@ public class EventController {
                         "sort={},\n" +
                         "from={},\n" +
                         "size={},\n",
-                text, categoriesId, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
         EventSort eventSort = EventSort.from(sort)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + sort));
 
-        return publicApiService.searchEventsByParams(text, categoriesId, paid, rangeStart, rangeEnd,
+        return publicApiService.searchEventsByParams(text, categories, paid, rangeStart, rangeEnd,
                 onlyAvailable, eventSort, from, size, request);
 
     }
@@ -133,12 +134,12 @@ public class EventController {
 
     @PatchMapping("/users/{userId}/events")
     public EventToGetDto updateEventByUser(@PathVariable Long userId,
-                                           @Valid @RequestBody EventToCreateDto eventToCreateDto) {
+                                           @RequestBody EventToUpdateByAdminDto eventToUpdateByAdminDto) {
 
         log.info("(Private)EventController.updateEventsByUser: received a request to update event with id={}" +
-                "by user with id={}", eventToCreateDto.getId(), userId);
+                "by user with id={}", eventToUpdateByAdminDto.getEventId(), userId);
 
-        return privateApiService.updateEventByUser(userId, eventToCreateDto);
+        return privateApiService.updateEventByUser(userId, eventToUpdateByAdminDto);
 
     }
 

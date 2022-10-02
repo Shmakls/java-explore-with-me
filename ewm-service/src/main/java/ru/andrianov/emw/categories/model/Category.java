@@ -9,9 +9,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @Table(name = "categories", schema = "public")
 public class Category {
 
@@ -23,7 +23,5 @@ public class Category {
     @NotNull(message = "category name should be not null")
     private String name;
 
-    public Category(Long id) {
-        this.id = id;
-    }
+
 }

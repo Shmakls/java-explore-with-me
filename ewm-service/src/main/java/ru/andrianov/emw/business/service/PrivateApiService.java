@@ -2,6 +2,7 @@ package ru.andrianov.emw.business.service;
 
 import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
+import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
 import ru.andrianov.emw.requests.model.Request;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 public interface PrivateApiService {
     List<EventToGetDto> getEventsByUser(Long userId, Integer from, Integer size);
 
-    EventToGetDto updateEventByUser(Long userId, EventToCreateDto eventToCreateDto);
+    EventToGetDto updateEventByUser(Long userId, EventToUpdateByAdminDto eventToUpdateByAdminDto);
 
     EventToGetDto addNewEvent(Long userId, EventToCreateDto eventToCreateDto);
 

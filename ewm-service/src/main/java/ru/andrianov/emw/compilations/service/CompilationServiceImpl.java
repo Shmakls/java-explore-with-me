@@ -8,9 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.compilations.exceptions.CompilationNotFoundException;
 import ru.andrianov.emw.compilations.model.Compilation;
-import ru.andrianov.emw.compilations.model.CompilationForList;
-import ru.andrianov.emw.compilations.repository.CompilationListRepository;
 import ru.andrianov.emw.compilations.repository.CompilationRepository;
+
 
 import java.util.List;
 
@@ -21,27 +20,14 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
 
-    private final CompilationListRepository compilationListRepository;
-
     @Override
     public Compilation addNewCompilationByAdmin(Compilation compilation) {
         return compilationRepository.save(compilation);
     }
 
     @Override
-    public CompilationForList saveCompilationList(CompilationForList compilationForList) {
-        return compilationListRepository.save(compilationForList);
-    }
-
-    @Override
     public void deleteCompilationById(Long compilationId) {
         compilationRepository.deleteById(compilationId);
-        compilationListRepository.deleteAllByCompilationId(compilationId);
-    }
-
-    @Override
-    public void deleteEventFromCompilationListById(Long eventId) {
-        compilationListRepository.deleteByEventId(eventId);
     }
 
     @Override
@@ -56,18 +42,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public List<CompilationForList> getListOfCompilationsForListByCompilationId(Long compilationId) {
-
-        if (!existCompilationById(compilationId)) {
-            log.error("CompilationService.getListOfCompilationsForListByCompilationId: compilation with id={} not found", compilationId);
-            throw new CompilationNotFoundException("compilation not found");
-        }
-
-        return compilationListRepository.findAllByCompilationId(compilationId);
-    }
-
-    @Override
-    public Compilation updateCompilationById(Compilation compilation) {
+    public Compilation updateCompilation(Compilation compilation) {
 
         if (!existCompilationById(compilation.getId())) {
             log.error("CompilationService.getCompilationById: compilation with id={} not found", compilation.getId());
@@ -91,22 +66,4 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationRepository.existsById(compilationId);
     }
 
-    @Override
-    public boolean existEventInCompilationById(Long compilationId, Long eventId) {
-        if (!existCompilationById(compilationId)) {
-            log.error("CompilationService.existEventInCompilationById: compilation with id={} not found", compilationId);
-            throw new CompilationNotFoundException("compilation not found");
-        }
-
-        List<CompilationForList> eventsListByCompilation = compilationListRepository.findAllByCompilationId(compilationId);
-
-        for (CompilationForList compilationForList : eventsListByCompilation) {
-            if (compilationForList.getEventId().equals(eventId)) {
-                return true;
-            }
-        }
-
-        return false;
-
-    }
 }

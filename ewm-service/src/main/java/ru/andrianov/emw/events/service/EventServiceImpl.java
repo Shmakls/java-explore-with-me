@@ -25,9 +25,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event addNewEvent(Event event) {
 
-        log.info("EventService.addNewEvent: send a request to DB to create New event with title {}", event.getTitle());
+        log.info("EventService.addNewEvent: send a request to DB to create New event with title={}", event.getTitle());
 
-        event.setState(EventState.WAITING);
+        event.setState(EventState.PENDING);
 
         return eventRepository.save(event);
     }
@@ -35,7 +35,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event updateEvent(Event event) {
 
-        log.info("EventService.updateEvent: send a request to DB to create New event with title {}", event.getTitle());
+        log.info("EventService.updateEvent: send a request to DB to create New event with title={}", event.getTitle());
 
         return eventRepository.save(event);
 
@@ -77,9 +77,9 @@ public class EventServiceImpl implements EventService {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by(fieldToSort).descending());
 
-        return eventRepository
-                .searchEventsByAnnotationContainingAndDescriptionContainingAndCategoryInAndPaidAndEventDateBetween(
-                        text, text, categoriesId, paid, start, end, pageable).getContent();
+        return eventRepository.searchEventsByTextAndParams(text, categoriesId, paid,
+                start, end, pageable)
+                .getContent();
     }
 
     @Override

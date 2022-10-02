@@ -1,19 +1,13 @@
 package ru.andrianov.emw.stat.model;
 
 import lombok.Data;
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+
 
 @Data
-@Entity
-@Table(name = "endpoint_stat", schema = "public")
+public class EndpointHitDto {
 
-public class EndpointHit {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -29,6 +23,6 @@ public class EndpointHit {
     private String ip;
 
     @NotNull
-    private LocalDateTime timestamp;
+    private String timestamp;
 
 }

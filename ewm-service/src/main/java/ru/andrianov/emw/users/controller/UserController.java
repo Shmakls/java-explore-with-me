@@ -27,10 +27,11 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getAllUsers(@PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
-                                     @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
-        log.info("(Admin)UserController.getAllUsers: received request to get all users");
-        return userService.getAllUsers(from, size);
+    public List<UserDto> getUsersByIdInByPages(@RequestParam List<Long> ids,
+                                               @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
+                                               @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
+        log.info("(Admin)UserController.getUsersByIdInByPages: received request to get all users");
+        return userService.getUsersByIdInByPages(ids, from, size);
     }
 
     @GetMapping("/{userId}")

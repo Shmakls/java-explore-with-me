@@ -3,7 +3,6 @@ package ru.andrianov.emw.events.model;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.awt.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,7 +23,7 @@ public class Event {
     private Long category;
 
     @Column(name = "confirmed_requests")
-    private Long confirmedRequests;
+    private Long confirmedRequests = 0L;
 
     private String description;
 
@@ -34,9 +33,12 @@ public class Event {
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
+    @Column(name = "event_date")
     private LocalDateTime eventDate;
 
-    private Point location;
+    private int lat;
+
+    private int lon;
 
     private boolean paid;
 

@@ -4,9 +4,8 @@ import java.util.Optional;
 
 public enum EventState {
 
-    WAITING,
+    PENDING,
     PUBLISHED,
-
     REJECTED,
     CANCELED;
 

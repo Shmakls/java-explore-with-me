@@ -1,9 +1,7 @@
 package ru.andrianov.emw.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.andrianov.emw.events.model.Location;
 
@@ -12,11 +10,9 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class EventToCreateDto {
+public class EventToUpdateByAdminDto {
 
-    private Long id;
+    private Long eventId;
 
     @NotNull
     @NotEmpty
@@ -39,13 +35,13 @@ public class EventToCreateDto {
     private Location location;
 
     @NotNull
-    private boolean paid;
+    private Boolean paid;
 
     @NotNull
     private Long participantLimit;
 
     @NotNull
-    private boolean requestModeration;
+    private Boolean requestModeration;
 
     @NotNull
     @NotEmpty

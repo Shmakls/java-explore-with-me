@@ -2,10 +2,8 @@ package ru.andrianov.emw.events.model;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class EndpointHit {
+public class EndpointHitDto {
 
     private Long id;
 
@@ -15,6 +13,6 @@ public class EndpointHit {
 
     private String ip;
 
-    private LocalDateTime timestamp;
+    private String timestamp;
 
 }

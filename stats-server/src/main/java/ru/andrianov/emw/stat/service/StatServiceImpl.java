@@ -3,7 +3,9 @@ package ru.andrianov.emw.stat.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.andrianov.emw.stat.mapper.EndpointHitMapper;
 import ru.andrianov.emw.stat.model.EndpointHit;
+import ru.andrianov.emw.stat.model.EndpointHitDto;
 import ru.andrianov.emw.stat.model.EndpointStat;
 import ru.andrianov.emw.stat.repository.StatRepository;
 
@@ -21,9 +23,10 @@ public class StatServiceImpl implements StatService {
     private final StatRepository statRepository;
 
     @Override
-    public EndpointHit saveStat(EndpointHit endpointHit) {
-        log.info("StatService.saveStat: send a request to DB to save endpointHit");
-        return statRepository.save(endpointHit);
+    public EndpointHit saveStat(EndpointHitDto endpointHitDto) {
+        log.info("StatService.saveStat: send a request to DB to save endpointHitDto");
+
+        return statRepository.save(EndpointHitMapper.toEndpointHit(endpointHitDto));
     }
 
     @Override

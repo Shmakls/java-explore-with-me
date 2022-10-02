@@ -83,7 +83,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         log.info("CategoryService.getCategoryById: send a request to DB to get category with id={}", categoryId);
 
-        return categoryRepository.getReferenceById(categoryId);
+        return categoryRepository.getCategoryById(categoryId);
     }
 
     @Override

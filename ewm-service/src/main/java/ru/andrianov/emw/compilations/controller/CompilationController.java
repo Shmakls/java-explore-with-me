@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.andrianov.emw.business.service.AdminService;
 import ru.andrianov.emw.business.service.PublicApiService;
 import ru.andrianov.emw.compilations.dto.CompilationDto;
-import ru.andrianov.emw.events.dto.EventToCompilationDto;
+import ru.andrianov.emw.compilations.dto.CompilationToCreateDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -24,11 +24,11 @@ public class CompilationController {
     private final PublicApiService publicApiService;
 
     @PostMapping("/admin/compilations")
-    List<EventToCompilationDto> addNewCompilation(@RequestBody @Valid CompilationDto compilationDto) {
+    CompilationDto addNewCompilation(@RequestBody @Valid CompilationToCreateDto compilationToCreateDto) {
 
         log.info("(Admin)CompilationController.addNewCompilation: received a request to add new compilation");
 
-        return adminService.addNewCompilationByAdmin(compilationDto);
+        return adminService.addNewCompilationByAdmin(compilationToCreateDto);
 
     }
 
@@ -80,7 +80,7 @@ public class CompilationController {
     }
 
     @GetMapping("/compilations")
-    public List<List<EventToCompilationDto>> getCompilationsByPages(
+    public List<CompilationDto> getCompilationsByPages(
             @RequestParam(required = false, defaultValue = "true") boolean pinned,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
@@ -93,7 +93,7 @@ public class CompilationController {
     }
 
     @GetMapping("/compilations/{compilationId}")
-    private List<EventToCompilationDto> getCompilationById(@PathVariable Long compilationId) {
+    private CompilationDto getCompilationById(@PathVariable Long compilationId) {
 
         log.info("(Public)CompilationsController.getCompilationById: received a request to get compilation by id={}", compilationId);
 
