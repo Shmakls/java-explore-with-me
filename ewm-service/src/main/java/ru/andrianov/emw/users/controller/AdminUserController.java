@@ -2,6 +2,7 @@ package ru.andrianov.emw.users.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.andrianov.emw.users.service.AdminUserService;
 import ru.andrianov.emw.users.dto.UserDto;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping(path = "/admin/users")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class AdminUserController {
 
     private final AdminUserService adminUserService;

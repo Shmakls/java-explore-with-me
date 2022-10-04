@@ -2,6 +2,7 @@ package ru.andrianov.emw.categories.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.andrianov.emw.categories.service.PublicCategoryService;
 import ru.andrianov.emw.categories.model.Category;
@@ -14,6 +15,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/categories")
+@Validated
 public class PublicCategoryController {
 
     private final PublicCategoryService publicCategoryService;

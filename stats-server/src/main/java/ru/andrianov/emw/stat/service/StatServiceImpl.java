@@ -4,15 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.stat.mapper.EndpointHitMapper;
+import ru.andrianov.emw.stat.model.Apps;
 import ru.andrianov.emw.stat.model.EndpointHit;
 import ru.andrianov.emw.stat.model.EndpointHitDto;
 import ru.andrianov.emw.stat.model.EndpointStat;
+import ru.andrianov.emw.stat.repository.AppRepository;
 import ru.andrianov.emw.stat.repository.StatRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,11 +25,33 @@ public class StatServiceImpl implements StatService {
 
     private final StatRepository statRepository;
 
+    private final AppRepository appRepository;
+
     @Override
     public EndpointHit saveStat(EndpointHitDto endpointHitDto) {
+
         log.info("StatService.saveStat: send a request to DB to save endpointHitDto");
 
-        return statRepository.save(EndpointHitMapper.toEndpointHit(endpointHitDto));
+        EndpointHit endpointHit = EndpointHitMapper.toEndpointHit(endpointHitDto);
+
+        Optional<Apps> apps = appRepository.getAppsByAppIgnoreCase(endpointHitDto.getApp());
+
+        Long appId = 0L;
+
+        if (apps.isEmpty()) {
+            Apps newAppsToSave = new Apps();
+            newAppsToSave.setApp(endpointHitDto.getApp());
+
+            newAppsToSave = appRepository.save(newAppsToSave);
+
+            appId = newAppsToSave.getId();
+        } else {
+            appId = apps.get().getId();
+        }
+
+        endpointHit.setApp(appId);
+
+        return statRepository.save(endpointHit);
     }
 
     @Override
@@ -46,6 +71,13 @@ public class StatServiceImpl implements StatService {
                 .map(x -> x.replace("]", ""))
                 .collect(Collectors.toList());
 
+        List<Long> uriIds = uris.stream()
+                .map(appRepository::getAppsByAppIgnoreCase)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Apps::getId)
+                .collect(Collectors.toList());
+
         if (unique) {
             hits = statRepository.findStatByUrisByTimeDistinct(startTime, endTime, uris);
         } else {
@@ -58,7 +90,7 @@ public class StatServiceImpl implements StatService {
                     .collect(Collectors.toList());
 
             if (hits.size() > 0) {
-                endpointStats.add(new EndpointStat(hits.get(0).getApp(),
+                endpointStats.add(new EndpointStat(appRepository.getAppsById(hits.get(0).getApp()).getApp(),
                         hits.get(0).getUri(),
                         (long) hits.size()));
             }

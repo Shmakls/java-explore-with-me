@@ -12,7 +12,6 @@ public class EndpointHitMapper {
 
         EndpointHit endpointHit = new EndpointHit();
 
-        endpointHit.setApp(endpointHitDto.getApp());
         endpointHit.setIp(endpointHitDto.getIp());
         endpointHit.setUri(endpointHitDto.getUri());
 

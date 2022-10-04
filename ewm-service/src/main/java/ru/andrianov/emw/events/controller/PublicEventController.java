@@ -2,6 +2,7 @@ package ru.andrianov.emw.events.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.andrianov.emw.events.service.PublicEventService;
 import ru.andrianov.emw.events.dto.EventToGetDto;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/events")
+@Validated
 public class PublicEventController {
 
     private final PublicEventService publicEventService;
