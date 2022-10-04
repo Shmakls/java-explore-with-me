@@ -1,9 +1,11 @@
 package ru.andrianov.emw.events.model;
 
 import lombok.Data;
+import ru.andrianov.emw.compilations.model.Compilation;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -52,5 +54,8 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     private EventState state;
+
+    @ManyToMany(mappedBy = "events")
+    private List<Compilation> compilations;
 
 }

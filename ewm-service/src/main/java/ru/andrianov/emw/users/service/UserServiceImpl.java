@@ -23,11 +23,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto addNewUser(User user) {
+    public UserDto addNewUser(UserDto userDto) {
 
-        log.info("UserService.addNewUser: send a request to DB to create new user with email={}", user.getEmail());
+        log.info("UserService.addNewUser: send a request to DB to create new user with email={}", userDto.getEmail());
 
-        user = userRepository.save(user);
+        User user = userRepository.save(UserMapper.fromDto(userDto));
 
         return UserMapper.toDto(user);
     }

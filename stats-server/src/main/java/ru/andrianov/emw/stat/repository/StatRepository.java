@@ -18,7 +18,13 @@ public interface StatRepository extends JpaRepository<EndpointHit, Long> {
     List<EndpointHit> findStatByUrisByTimeDistinct(LocalDateTime startTime, LocalDateTime endTime,
                                                    List<String> uris);
 
-    List<EndpointHit> findEndpointHitsByUriInAndTimestampBetween(List<String> uris, LocalDateTime start,
-                                                                 LocalDateTime end);
+
+    @Query(nativeQuery = true,
+    value = " SELECT * " +
+            " FROM endpoint_stat " +
+            " WHERE uri IN ?1 AND timestamp BETWEEN ?2 AND ?3 ")
+    List<EndpointHit> getEndpointHitsByUriInAndTimestampBetween(List<String> uris, LocalDateTime startTime,
+                                                                LocalDateTime endTime);
+
 
 }

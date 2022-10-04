@@ -3,7 +3,7 @@ package ru.andrianov.emw.requests.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.andrianov.emw.business.service.PrivateApiService;
+import ru.andrianov.emw.requests.service.PrivateRequestService;
 import ru.andrianov.emw.requests.model.Request;
 
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.List;
 @RequestMapping("/users/{userId}")
 @Slf4j
 @RequiredArgsConstructor
-public class RequestController {
+public class PrivateRequestController {
 
-    private final PrivateApiService privateApiService;
+    private final PrivateRequestService privateRequestService;
 
     @GetMapping("/events/{eventId}/requests")
     public List<Request> getRequestsByEventIdByOwner(@PathVariable Long userId, @PathVariable Long eventId) {
@@ -22,7 +22,7 @@ public class RequestController {
         log.info("(Private)RequestController.getRequestsByEventIdByOwner: received a request to get " +
                 "requests to event with id={} by owner with id={}", eventId, userId);
 
-        return privateApiService.getRequestsByEventIdByOwner(userId, eventId);
+        return privateRequestService.getRequestsByEventIdByOwner(userId, eventId);
 
     }
 
@@ -33,7 +33,7 @@ public class RequestController {
         log.info("(Private)RequestController.confirmRequestByEventIdByOwner: received a request to confirm " +
                 "request with id={} event with id={} by owner with id={}", reqId, eventId, userId);
 
-        return privateApiService.confirmRequestByEventIdByOwner(userId, eventId, reqId);
+        return privateRequestService.confirmRequestByEventIdByOwner(userId, eventId, reqId);
 
     }
 
@@ -44,7 +44,7 @@ public class RequestController {
         log.info("(Private)RequestController.rejectRequestByEventIdByOwner: received a request to reject " +
                 "request with id={} event with id={} by owner with id={}", reqId, eventId, userId);
 
-        return privateApiService.rejectRequestByEventIdByOwner(userId, eventId, reqId);
+        return privateRequestService.rejectRequestByEventIdByOwner(userId, eventId, reqId);
 
     }
 
@@ -54,7 +54,7 @@ public class RequestController {
         log.info("(Private)RequestController.getRequestsByUserId: received a request to get requests by user with " +
                 "id={}", userId);
 
-        return privateApiService.getRequestsByUserId(userId);
+        return privateRequestService.getRequestsByUserId(userId);
 
     }
 
@@ -64,7 +64,7 @@ public class RequestController {
         log.info("(Private)RequestController.addNewRequestToEventByUser: received a request to add new request " +
                 "to event with id={} by user with id={}", eventId, userId);
 
-        return privateApiService.addNewRequestToEventByUser(userId, eventId);
+        return privateRequestService.addNewRequestToEventByUser(userId, eventId);
 
     }
 
@@ -74,7 +74,7 @@ public class RequestController {
         log.info("(Private)RequestController.cancelRequestByRequestOwner: received a request to cancel request " +
                 "with id={} by owner with id={}", requestId, userId);
 
-        return privateApiService.cancelRequestByRequestOwner(userId, requestId);
+        return privateRequestService.cancelRequestByRequestOwner(userId, requestId);
 
     }
 

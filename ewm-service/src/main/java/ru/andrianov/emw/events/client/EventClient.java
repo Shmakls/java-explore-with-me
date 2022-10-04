@@ -1,31 +1,41 @@
 package ru.andrianov.emw.events.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.andrianov.emw.business.clients.BaseClient;
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.andrianov.emw.events.model.EndpointHitDto;
+import ru.andrianov.emw.events.model.EndpointStat;
+
+import java.net.URI;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
+import java.util.List;
+
+
 
 @Service
-public class EventClient extends BaseClient {
+public class EventClient {
 
-    @Autowired
+    private final RestTemplate rest;
+    private final String serverUrl;
+
+    private static final String HIT = "/hit";
+    private static final String STATS = "/stats";
+
     public EventClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(builder
-                .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                .build());
+        this.rest = builder.build();
+        this.serverUrl = serverUrl;
+        rest.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
     }
 
-    public ResponseEntity<Object> saveStat(String app, String uri, String ip) {
+    public void saveStat(String app, String uri, String ip) {
 
         EndpointHitDto endpointHitDto = new EndpointHitDto();
 
@@ -34,13 +44,42 @@ public class EventClient extends BaseClient {
         endpointHitDto.setUri(uri);
         endpointHitDto.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        return post("/hit", endpointHitDto);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<EndpointHitDto> requestEntity = new HttpEntity<>(endpointHitDto, headers);
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serverUrl + HIT);
+
+        ResponseEntity<Object> response = rest.exchange(
+                uriBuilder.build().encode().toUri(),
+                HttpMethod.POST,
+                requestEntity,
+                Object.class);
 
     }
 
-    public ResponseEntity<Object> getStat(String path, Map<String, Object> params) {
+    public ResponseEntity<List<EndpointStat>> getStat(String start, String end,
+                                                      List<String> uris) {
 
-        return get("" + path + "?start={start}&end={end}&uris={uris}", params);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serverUrl + STATS);
+
+        uriBuilder.queryParam("start", start);
+        uriBuilder.queryParam("end", end);
+
+        for (String s : uris) {
+            uriBuilder.queryParam("uris", s);
+        }
+
+        URI uri = uriBuilder.build().encode().toUri();
+
+        return rest.exchange(uri, HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {
+                });
 
     }
 

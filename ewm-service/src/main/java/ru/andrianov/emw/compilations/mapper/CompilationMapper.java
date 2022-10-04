@@ -1,9 +1,12 @@
 package ru.andrianov.emw.compilations.mapper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.andrianov.emw.compilations.dto.CompilationDto;
 import ru.andrianov.emw.compilations.dto.CompilationToCreateDto;
 import ru.andrianov.emw.compilations.model.Compilation;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CompilationMapper {
 
     public static CompilationDto toDto(Compilation compilation) {

@@ -39,12 +39,17 @@ public class StatServiceImpl implements StatService {
 
         List<EndpointStat> endpointStats = new ArrayList<>();
 
-        List<EndpointHit> hits;
+        List<EndpointHit> hits = new ArrayList<>();
+
+        uris = uris.stream()
+                .map(x -> x.replace("[", ""))
+                .map(x -> x.replace("]", ""))
+                .collect(Collectors.toList());
 
         if (unique) {
             hits = statRepository.findStatByUrisByTimeDistinct(startTime, endTime, uris);
         } else {
-            hits = statRepository.findEndpointHitsByUriInAndTimestampBetween(uris, startTime, endTime);
+            hits = statRepository.getEndpointHitsByUriInAndTimestampBetween(uris, startTime, endTime);
         }
 
         for (String uri : uris) {

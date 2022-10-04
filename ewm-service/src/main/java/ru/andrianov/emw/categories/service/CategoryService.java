@@ -1,13 +1,14 @@
 package ru.andrianov.emw.categories.service;
 
+import ru.andrianov.emw.categories.dto.CategoryDto;
 import ru.andrianov.emw.categories.model.Category;
 
 import java.util.List;
 
 public interface CategoryService {
-    Category addNewCategory(Category category);
+    CategoryDto addNewCategory(CategoryDto categoryDto);
 
-    Category updateCategory(Category category);
+    CategoryDto updateCategory(CategoryDto categoryDto);
 
     void deleteCategoryById(Long categoryId);
 

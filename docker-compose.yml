@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.1'
 services:
   stats-server:
     build: stats-server
@@ -29,10 +29,12 @@ services:
       - "8080:8080"
     depends_on:
       - ewm-db
+      - stats-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://emw-db:5432/emw-main
       - POSTGRES_USER=emwuser
       - POSTGRES_PASSWORD=emwuser
+      - stat-server.url=http://stats-server:9090
 
   ewm-db:
     image: postgres:14-alpine

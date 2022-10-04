@@ -1,11 +1,14 @@
 package ru.andrianov.emw.users.mapper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.andrianov.emw.users.dto.UserDto;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 import ru.andrianov.emw.users.model.User;
 
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
     public static UserDto toDto(User user) {
@@ -14,8 +17,7 @@ public class UserMapper {
 
         userDto.setEmail(user.getEmail());
         userDto.setName(user.getName());
-
-        Optional.ofNullable(user.getId()).ifPresent(userDto::setId);
+        userDto.setId(user.getId());
 
         return userDto;
     }

@@ -7,6 +7,7 @@ import ru.andrianov.emw.events.model.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventService {
 
@@ -30,5 +31,7 @@ public interface EventService {
     List<Event> searchEventsByText(String text, List<Long> categoriesId,
                                    boolean paid, LocalDateTime start, LocalDateTime end,
                                    EventSort eventSort, Integer from, Integer size);
+
+    Optional<Event> getEventByCategoryId(Long categoryId);
 
 }

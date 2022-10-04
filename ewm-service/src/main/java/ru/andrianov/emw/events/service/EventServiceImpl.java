@@ -14,6 +14,7 @@ import ru.andrianov.emw.events.repository.EventRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -106,5 +107,10 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
 
         return eventRepository.getEventsByInitiator(userId, pageable).getContent();
+    }
+
+    @Override
+    public Optional<Event> getEventByCategoryId(Long categoryId) {
+        return eventRepository.getFirstByCategory(categoryId);
     }
 }

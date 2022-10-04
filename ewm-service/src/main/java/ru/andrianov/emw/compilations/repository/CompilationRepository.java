@@ -7,8 +7,6 @@ import ru.andrianov.emw.compilations.model.Compilation;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
 
-    Page<Compilation> findAllBy(Pageable pageable);
-
     Page<Compilation> findCompilationsByPinned(boolean pinned, Pageable pageable);
 
 }

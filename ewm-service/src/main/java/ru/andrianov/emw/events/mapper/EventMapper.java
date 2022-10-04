@@ -1,7 +1,8 @@
 package ru.andrianov.emw.events.mapper;
 
-import lombok.RequiredArgsConstructor;
-import ru.andrianov.emw.categories.model.Category;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import ru.andrianov.emw.categories.dto.CategoryDto;
 import ru.andrianov.emw.events.dto.EventToCompilationDto;
 import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
@@ -13,7 +14,7 @@ import ru.andrianov.emw.users.dto.UserInitiatorDto;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
 
     public static Event toEventFromEventToCreateDto(EventToCreateDto eventToCreateDto) {
@@ -42,7 +43,7 @@ public class EventMapper {
 
         eventToCompilationDto.setId(event.getId());
         eventToCompilationDto.setAnnotation(event.getAnnotation());
-        eventToCompilationDto.setCategory(new Category(event.getCategory(), null));
+        eventToCompilationDto.setCategory(new CategoryDto(event.getCategory(), null));
         eventToCompilationDto.setConfirmedRequests(event.getConfirmedRequests());
         eventToCompilationDto.setEventDate(event.getEventDate());
         eventToCompilationDto.setInitiator(new UserInitiatorDto(event.getInitiator()));
@@ -59,7 +60,7 @@ public class EventMapper {
 
         eventToGetDto.setId(event.getId());
         eventToGetDto.setAnnotation(event.getAnnotation());
-        eventToGetDto.setCategory(new Category(event.getCategory(), null));
+        eventToGetDto.setCategory(new CategoryDto(event.getCategory(), null));
         Optional.ofNullable(event.getConfirmedRequests()).ifPresent(eventToGetDto::setConfirmedRequests);
         eventToGetDto.setCreatedOn(event.getCreatedOn());
         eventToGetDto.setDescription(event.getDescription());
@@ -140,6 +141,12 @@ public class EventMapper {
             eventToUpdate.setRequestModeration(eventToUpdateByAdminDto.getRequestModeration());
         } else {
             eventToUpdate.setRequestModeration(event.isRequestModeration());
+        }
+
+        if (!(eventToUpdateByAdminDto.getTitle() == null)) {
+            eventToUpdate.setTitle(eventToUpdateByAdminDto.getTitle());
+        } else {
+            eventToUpdate.setTitle(event.getTitle());
         }
 
         eventToUpdate.setState(event.getState());

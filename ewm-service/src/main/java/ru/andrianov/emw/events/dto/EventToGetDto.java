@@ -3,7 +3,7 @@ package ru.andrianov.emw.events.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.andrianov.emw.categories.model.Category;
+import ru.andrianov.emw.categories.dto.CategoryDto;
 import ru.andrianov.emw.events.model.Location;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
@@ -18,7 +18,7 @@ public class EventToGetDto {
 
     private String annotation;
 
-    private Category category;
+    private CategoryDto category;
 
     private Long confirmedRequests;
 

@@ -10,6 +10,7 @@ import ru.andrianov.emw.events.model.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
@@ -28,5 +29,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             LocalDateTime start, LocalDateTime end, Pageable pageable);
 
     Page<Event> getEventsByInitiator(Long userId, Pageable pageable);
+
+    Optional<Event> getFirstByCategory(Long categoryId);
 
 }
