@@ -48,14 +48,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(Long userId) {
 
-        if (!existById(userId)) {
-            log.error("UserService.getUserById: user with id={} not exist", userId);
-            throw new UserNotFoundException("user not exist");
-        }
-
         log.info("UserService.getUserById: send a request to DB to get user with id={}", userId);
 
-        return UserMapper.toDto(userRepository.getReferenceById(userId));
+        return UserMapper.toDto(userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("user is not exist")));
     }
 
     @Override
@@ -74,12 +70,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getUserNameById(Long userId) {
 
-        if (!existById(userId)) {
-            log.error("UserService.getUserNameById: user with id={} not exist", userId);
-            throw new UserNotFoundException("user not exist");
-        }
-
-        return userRepository.getReferenceById(userId).getName();
+        return userRepository.findUserNameById(userId)
+                .orElseThrow(() -> new UserNotFoundException("user is not exist"));
 
     }
 

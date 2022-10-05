@@ -18,6 +18,7 @@ import ru.andrianov.emw.events.mapper.EventMapper;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.service.EventService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,11 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
     @Override
     public CompilationDto addNewCompilationByAdmin(CompilationToCreateDto compilationToCreateDto) {
 
-        List<Long> eventsId = compilationToCreateDto.getEvents();
+        List<Long> eventsId = new ArrayList<>();
+
+        if (!(compilationToCreateDto.getEvents() == null)) {
+            eventsId = compilationToCreateDto.getEvents();
+        }
 
         for (Long eventId : eventsId) {
             if (!eventService.existById(eventId)) {

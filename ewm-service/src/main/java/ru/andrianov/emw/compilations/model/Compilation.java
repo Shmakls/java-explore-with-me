@@ -17,6 +17,7 @@ public class Compilation {
 
     private boolean pinned;
 
+    @Column(name = "title", length = 200, nullable = false)
     private String title;
 
     @ManyToMany

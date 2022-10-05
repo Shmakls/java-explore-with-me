@@ -9,13 +9,13 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.andrianov.emw.business.helper.DateTimeStringConverter;
 import ru.andrianov.emw.events.model.EndpointHitDto;
 import ru.andrianov.emw.events.model.EndpointStat;
 
 import java.net.URI;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -42,7 +42,7 @@ public class EventClient {
         endpointHitDto.setApp(app);
         endpointHitDto.setIp(ip);
         endpointHitDto.setUri(uri);
-        endpointHitDto.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        endpointHitDto.setTimestamp(DateTimeStringConverter.toFormattedString(LocalDateTime.now()));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

@@ -17,7 +17,6 @@ import ru.andrianov.emw.users.service.UserService;
 
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import java.util.List;
 
@@ -57,9 +56,9 @@ public class SetterParamsToEventService {
 
         String apiPrefix = "/events/";
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String start = LocalDateTime.now().minusYears(20).format(formatter);
-        String end = LocalDateTime.now().plusYears(1).format(formatter);
+
+        String start = DateTimeStringConverter.toFormattedString(LocalDateTime.now().minusYears(20));
+        String end = DateTimeStringConverter.toFormattedString(LocalDateTime.now().plusYears(1));
 
         List<String> uris = List.of(apiPrefix + eventId);
 

@@ -33,12 +33,8 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public Compilation getCompilationById(Long compilationId) {
 
-        if (!existCompilationById(compilationId)) {
-            log.error("CompilationService.getCompilationById: compilation with id={} not found", compilationId);
-            throw new CompilationNotFoundException("compilation not found");
-        }
-
-        return compilationRepository.getReferenceById(compilationId);
+        return compilationRepository.findById(compilationId)
+                .orElseThrow(() -> new CompilationNotFoundException("compilation is not exist"));
     }
 
     @Override

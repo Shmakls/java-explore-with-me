@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.andrianov.emw.categories.dto.CategoryDto;
 import ru.andrianov.emw.categories.service.PublicCategoryService;
-import ru.andrianov.emw.categories.model.Category;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -21,8 +21,8 @@ public class PublicCategoryController {
     private final PublicCategoryService publicCategoryService;
 
     @GetMapping
-    public List<Category> getAllCategories(@PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
-                                           @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
+    public List<CategoryDto> getAllCategories(@PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
+                                              @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
 
         log.info("(Public)CategoryController.getAllCategories: received a request to get all categories");
 
@@ -31,7 +31,7 @@ public class PublicCategoryController {
     }
 
     @GetMapping("/{categoryId}")
-    public Category getCategoryById(@PathVariable Long categoryId) {
+    public CategoryDto getCategoryById(@PathVariable Long categoryId) {
 
         log.info("(Public)CategoryController.getCategoryById: received a request to get category with id={}", categoryId);
 

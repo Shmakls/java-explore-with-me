@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StatServiceImpl implements StatService {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final StatRepository statRepository;
 
     private final AppRepository appRepository;
@@ -36,7 +37,7 @@ public class StatServiceImpl implements StatService {
 
         Optional<Apps> apps = appRepository.getAppsByAppIgnoreCase(endpointHitDto.getApp());
 
-        Long appId = 0L;
+        Long appId;
 
         if (apps.isEmpty()) {
             Apps newAppsToSave = new Apps();
@@ -57,25 +58,16 @@ public class StatServiceImpl implements StatService {
     @Override
     public List<EndpointStat> getStatByParams(String start, String end, List<String> uris, Boolean unique) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endTime = LocalDateTime.parse(end, formatter);
+        LocalDateTime startTime = LocalDateTime.parse(start, FORMATTER);
+        LocalDateTime endTime = LocalDateTime.parse(end, FORMATTER);
 
         List<EndpointStat> endpointStats = new ArrayList<>();
 
-        List<EndpointHit> hits = new ArrayList<>();
+        List<EndpointHit> hits;
 
         uris = uris.stream()
                 .map(x -> x.replace("[", ""))
                 .map(x -> x.replace("]", ""))
-                .collect(Collectors.toList());
-
-        List<Long> uriIds = uris.stream()
-                .map(appRepository::getAppsByAppIgnoreCase)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(Apps::getId)
                 .collect(Collectors.toList());
 
         if (unique) {

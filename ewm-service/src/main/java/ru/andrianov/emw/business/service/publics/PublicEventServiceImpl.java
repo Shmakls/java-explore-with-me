@@ -1,10 +1,12 @@
 package ru.andrianov.emw.business.service.publics;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import ru.andrianov.emw.business.helper.DateTimeStringConverter;
 import ru.andrianov.emw.business.helper.SetterParamsToEventService;
 import ru.andrianov.emw.events.client.EventClient;
 import ru.andrianov.emw.events.dto.EventToGetDto;
@@ -18,24 +20,33 @@ import ru.andrianov.emw.events.service.PublicEventService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PublicEventServiceImpl implements PublicEventService {
 
-    private static final String SERVICE_APP = "emw-service";
+    private final String serviceApp;
 
     private final EventService eventService;
 
     private final SetterParamsToEventService setterParamsToEventService;
 
     private final EventClient eventClient;
+
+    @Autowired
+    public PublicEventServiceImpl(EventService eventService,
+                                  SetterParamsToEventService setterParamsToEventService,
+                                  EventClient eventClient,
+                                  @Value("${service-app.name}") String serviceApp) {
+        this.eventService = eventService;
+        this.setterParamsToEventService = setterParamsToEventService;
+        this.eventClient = eventClient;
+        this.serviceApp = serviceApp;
+    }
 
     @Override
     public EventToGetDto getEventForPublicById(Long eventId, HttpServletRequest request) {
@@ -50,7 +61,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         EventToGetDto eventToGetDto = setterParamsToEventService
                 .setCategoryNameAndInitiatorName(EventMapper.toGetDto(event));
 
-        eventClient.saveStat(SERVICE_APP, request.getRequestURI(), request.getRemoteAddr());
+        eventClient.saveStat(serviceApp, request.getRequestURI(), request.getRemoteAddr());
 
         return eventToGetDto;
     }
@@ -65,9 +76,8 @@ public class PublicEventServiceImpl implements PublicEventService {
         LocalDateTime end = LocalDateTime.now().plusYears(3);
 
         if (StringUtils.hasText(rangeStart) || StringUtils.hasText(rangeEnd)) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            start = LocalDateTime.parse(rangeStart, formatter);
-            end = LocalDateTime.parse(rangeEnd,formatter);
+            start = DateTimeStringConverter.fromFormattedString(rangeStart);
+            end = DateTimeStringConverter.fromFormattedString(rangeEnd);
         }
 
         List<Event> events = eventService.searchEventsByText(text, categoriesId, paid,
@@ -75,7 +85,7 @@ public class PublicEventServiceImpl implements PublicEventService {
 
         Predicate<Event> onlyAvailablePredicate = event -> event.getConfirmedRequests() < event.getParticipantLimit();
 
-        eventClient.saveStat(SERVICE_APP, request.getRequestURI(), request.getRemoteAddr());
+        eventClient.saveStat(serviceApp, request.getRequestURI(), request.getRemoteAddr());
 
         if (onlyAvailable) {
             return events.stream()

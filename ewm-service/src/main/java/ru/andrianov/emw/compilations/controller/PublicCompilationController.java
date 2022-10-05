@@ -2,6 +2,7 @@ package ru.andrianov.emw.compilations.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.andrianov.emw.compilations.service.PublicCompilationService;
 import ru.andrianov.emw.compilations.dto.CompilationDto;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequestMapping("/compilations")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class PublicCompilationController {
 
     private final PublicCompilationService publicCompilationService;
@@ -31,7 +33,7 @@ public class PublicCompilationController {
     }
 
     @GetMapping("/{compilationId}")
-    private CompilationDto getCompilationById(@PathVariable Long compilationId) {
+    public CompilationDto getCompilationById(@PathVariable Long compilationId) {
 
         log.info("(Public)CompilationsController.getCompilationById: received a request to get compilation by id={}", compilationId);
 

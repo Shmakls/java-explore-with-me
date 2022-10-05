@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.andrianov.emw.business.helper.DateTimeStringConverter;
 import ru.andrianov.emw.business.helper.SetterParamsToEventService;
 import ru.andrianov.emw.events.dto.EventToGetDto;
 import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
@@ -17,7 +18,6 @@ import ru.andrianov.emw.events.service.AdminEventService;
 import ru.andrianov.emw.events.service.EventService;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService {
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final EventService eventService;
 
@@ -40,8 +38,8 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
 
-        LocalDateTime start = LocalDateTime.parse(rangeStart, FORMATTER);
-        LocalDateTime end = LocalDateTime.parse(rangeEnd, FORMATTER);
+        LocalDateTime start = DateTimeStringConverter.fromFormattedString(rangeStart);
+        LocalDateTime end = DateTimeStringConverter.fromFormattedString(rangeEnd);
 
         List<EventState> eventStates = states.stream()
                 .map(EventState::from)

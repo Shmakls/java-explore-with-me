@@ -19,6 +19,7 @@ public class Event {
     @Column(name = "initiator_id")
     private Long initiator;
 
+    @Column(name = "annotation", length = 500, nullable = false)
     private String annotation;
 
     @Column(name = "category_id")
@@ -27,6 +28,7 @@ public class Event {
     @Column(name = "confirmed_requests")
     private Long confirmedRequests = 0L;
 
+    @Column(name = "description", length = 2000, nullable = false)
     private String description;
 
     @Column(name = "created_on")
@@ -35,7 +37,7 @@ public class Event {
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
-    @Column(name = "event_date")
+    @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 
     private int lat;
@@ -45,11 +47,12 @@ public class Event {
     private boolean paid;
 
     @Column(name = "participant_limit")
-    private Long participantLimit;
+    private Long participantLimit = 0L;
 
     @Column(name = "request_moderation")
     private boolean requestModeration;
 
+    @Column(name = "title", length = 200, nullable = false)
     private String title;
 
     @Enumerated(EnumType.STRING)

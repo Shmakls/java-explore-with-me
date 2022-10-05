@@ -45,16 +45,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event getEventById(Long id) {
 
-        if (!existById(id)) {
-            log.error("EventService.getEventById: event with id={} do not exists", id);
-            throw new EventNotFoundException("event not found");
-        }
-
-        return eventRepository.getReferenceById(id);
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("event not found"));
     }
 
     @Override
     public void deleteEventById(Long id) {
+
         if (!existById(id)) {
             log.error("EventService.deleteEventById: event with id={} do not exists", id);
             throw new EventNotFoundException("event not found");
@@ -81,11 +78,6 @@ public class EventServiceImpl implements EventService {
         return eventRepository.searchEventsByTextAndParams(text, categoriesId, paid,
                 start, end, pageable)
                 .getContent();
-    }
-
-    @Override
-    public List<Event> getAllEvents() {
-        return null;
     }
 
     @Override

@@ -19,11 +19,9 @@ public interface EventService {
 
     void deleteEventById(Long id);
 
-    List<Event> getAllEvents();
-
     boolean existById(Long id);
 
-    List<Event> getEventsByUserId(Long userId,Integer from, Integer size);
+    List<Event> getEventsByUserId(Long userId, Integer from, Integer size);
 
     List<Event> getEventsByParams(List<Long> users, List<EventState> states, List<Long> categories,
                                   LocalDateTime start, LocalDateTime end, Pageable pageable);

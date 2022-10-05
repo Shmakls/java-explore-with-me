@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.categories.dto.CategoryDto;
 import ru.andrianov.emw.categories.exceptions.CategoryNotFoundException;
+import ru.andrianov.emw.categories.exceptions.CategoryStillUseException;
 import ru.andrianov.emw.categories.mapper.CategoryMapper;
 import ru.andrianov.emw.categories.model.Category;
 import ru.andrianov.emw.categories.repository.CategoryRepository;
@@ -51,6 +52,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategoryById(Long categoryId) {
 
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException("category not exist"));
+
+        if (category.getEvents().size() > 0) {
+            log.error("CategoryService.deleteCategoryById: you can't delete category because it's still use");
+            throw new CategoryStillUseException();
+        }
+
         log.info("CategoryService.deleteCategoryById: send a request to DB to delete category with id={}", categoryId);
 
         categoryRepository.deleteById(categoryId);
@@ -77,14 +86,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category getCategoryById(Long categoryId) {
 
-        if (!existById(categoryId)) {
-            log.error("CategoryService.getCategoryById: category with id={} not exist", categoryId);
-            throw new CategoryNotFoundException("category not exist");
-        }
-
         log.info("CategoryService.getCategoryById: send a request to DB to get category with id={}", categoryId);
 
-        return categoryRepository.getCategoryById(categoryId);
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException("category not exist"));
     }
 
     @Override

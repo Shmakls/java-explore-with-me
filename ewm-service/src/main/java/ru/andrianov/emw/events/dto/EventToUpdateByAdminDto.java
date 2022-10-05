@@ -14,14 +14,12 @@ public class EventToUpdateByAdminDto {
 
     private Long eventId;
 
-    @NotNull
     @NotEmpty
     private String annotation;
 
     @NotNull
     private Long category;
 
-    @NotNull
     @NotEmpty
     private String description;
 
@@ -43,7 +41,6 @@ public class EventToUpdateByAdminDto {
     @NotNull
     private Boolean requestModeration;
 
-    @NotNull
     @NotEmpty
     private String title;
 
