@@ -74,12 +74,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public String getCategoryNameById(Long categoryId) {
 
-        if (!existById(categoryId)) {
-            log.error("CategoryService.getCategoryNameById: category with id={} not exist", categoryId);
-            throw new CategoryNotFoundException("category not exist");
-        }
-
-        return categoryRepository.getReferenceById(categoryId).getName();
+        return categoryRepository.getCategoryNameById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException("category is not exist"));
 
     }
 
