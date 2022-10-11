@@ -32,4 +32,6 @@ public interface EventService {
 
     Optional<Event> getEventByCategoryId(Long categoryId);
 
+    String getEventTitleById(Long eventId);
+
 }

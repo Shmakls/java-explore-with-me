@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.andrianov.emw.categories.dto.CategoryDto;
+import ru.andrianov.emw.comment.dto.CommentToGetEventDto;
 import ru.andrianov.emw.events.model.Location;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -45,5 +47,7 @@ public class EventToGetDto {
     private String title;
 
     private Long views;
+
+    private List<CommentToGetEventDto> comments;
 
 }
