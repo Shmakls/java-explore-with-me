@@ -8,11 +8,15 @@ import ru.andrianov.emw.business.helper.DateTimeStringConverter;
 import ru.andrianov.emw.business.helper.SetterParamsToCommentService;
 import ru.andrianov.emw.comment.dto.CommentToCreateDto;
 import ru.andrianov.emw.comment.dto.CommentToGetDto;
+import ru.andrianov.emw.comment.exception.CommentAlreadyExistException;
 import ru.andrianov.emw.comment.mapper.CommentMapper;
 import ru.andrianov.emw.comment.model.Comment;
 import ru.andrianov.emw.comment.model.CommentState;
 import ru.andrianov.emw.comment.service.CommentService;
 import ru.andrianov.emw.comment.service.PrivateCommentService;
+import ru.andrianov.emw.events.exceptions.WrongEventStateException;
+import ru.andrianov.emw.events.model.EventState;
+import ru.andrianov.emw.events.service.EventService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +28,8 @@ import java.util.stream.Collectors;
 public class PrivateCommentServiceImpl implements PrivateCommentService {
 
     private final CommentService commentService;
+
+    private final EventService eventService;
 
     private final SetterParamsToCommentService setterParamsToCommentService;
 
@@ -37,13 +43,20 @@ public class PrivateCommentServiceImpl implements PrivateCommentService {
         checker.eventExistChecker(commentToCreateDto.getEventId());
 
         if (commentService.findCommentByOwnerIdAndEventId(userId, commentToCreateDto.getEventId()).isPresent()) {
-            log.error("PrivateCommentService.addNewComment: user with id={} already add comment to event " +
+            log.error("PrivateCommentService.addNewComment: user with id={} already added comment to event " +
                     "with id={}", userId, commentToCreateDto.getEventId());
+            throw new CommentAlreadyExistException("comment already exist");
+        }
+
+        if (!(eventService.getEventById(commentToCreateDto.getEventId()).getState() == EventState.PUBLISHED)) {
+            log.error("PrivateCommentService.addNewComment: event with id={} not published", commentToCreateDto.getEventId());
+            throw new WrongEventStateException("event not published");
         }
 
         Comment comment = CommentMapper.fromCreateDto(commentToCreateDto);
 
         comment.setCommentState(CommentState.PENDING);
+        comment.setOwnerId(userId);
 
         comment = commentService.addNewComment(comment);
 

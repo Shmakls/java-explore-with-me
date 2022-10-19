@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.andrianov.emw.categories.dto.CategoryDto;
 import ru.andrianov.emw.comment.mapper.CommentMapper;
+import ru.andrianov.emw.comment.model.CommentState;
 import ru.andrianov.emw.events.dto.*;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.Location;
@@ -78,6 +79,7 @@ public class EventMapper {
 
         eventToGetDto.setComments(event.getComments()
                         .stream()
+                        .filter(x -> x.getCommentState() == CommentState.PUBLISHED)
                         .map(CommentMapper::toGetEventDto)
                         .collect(Collectors.toList()));
 
