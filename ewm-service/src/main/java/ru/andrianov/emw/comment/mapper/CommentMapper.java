@@ -32,6 +32,7 @@ public class CommentMapper {
         commentToGetDto.setEvent(new EventToCommentDto(comment.getEventId()));
         commentToGetDto.setText(comment.getText());
         commentToGetDto.setCreated(comment.getCreated());
+        commentToGetDto.setCommentState(comment.getCommentState());
 
         return commentToGetDto;
 

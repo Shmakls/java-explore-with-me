@@ -1,6 +1,7 @@
 package ru.andrianov.emw.comment.dto;
 
 import lombok.Data;
+import ru.andrianov.emw.comment.model.CommentState;
 import ru.andrianov.emw.events.dto.EventToCommentDto;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
@@ -18,5 +19,7 @@ public class CommentToGetDto {
     private EventToCommentDto event;
 
     private LocalDateTime created;
+
+    private CommentState commentState;
 
 }

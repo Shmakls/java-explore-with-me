@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.andrianov.emw.categories.model.Create;
 import ru.andrianov.emw.comment.dto.CommentToCreateDto;
 import ru.andrianov.emw.comment.dto.CommentToGetDto;
 import ru.andrianov.emw.comment.service.PrivateCommentService;
@@ -18,14 +17,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("users/{userId}/comments")
+@RequestMapping("/users/{userId}/comments")
 public class PrivateCommentController {
 
     private final PrivateCommentService privateCommentService;
 
     @PostMapping
     public CommentToGetDto addNewComment(@PathVariable Long userId,
-                                         @Validated(Create.class) CommentToCreateDto  commentToCreateDto) {
+                                         @Validated @RequestBody CommentToCreateDto commentToCreateDto) {
 
         log.info("PrivateCommentController.addNewComment: received a request to add new comment " +
                 "to event with id={} by user with id={}", commentToCreateDto.getEventId(), userId);
@@ -36,7 +35,7 @@ public class PrivateCommentController {
 
     @PatchMapping("/{commentId}")
     public CommentToGetDto updateComment(@PathVariable Long userId,
-                                         @Valid @NotBlank String text, @PathVariable Long commentId) {
+                                         @Valid @NotBlank @RequestParam String text, @PathVariable Long commentId) {
 
         log.info("PrivateCommentController.updateComment: received a request to update comment " +
                 "with id={} by user with id={}", commentId, userId);
@@ -59,8 +58,8 @@ public class PrivateCommentController {
     public List<CommentToGetDto> getCommentsByUserIdByPeriod(@PathVariable Long userId,
                                                              @RequestParam String startTime,
                                                              @RequestParam String endTime,
-                                                             @PositiveOrZero @RequestParam Integer from,
-                                                             @Positive Integer size) {
+                                                             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                             @Positive @RequestParam(required = false, defaultValue = "20") Integer size) {
 
         log.info("PrivateCommentController.getCommentsByUserIdByPeriod: received a request to get user " +
                 "comments with id={}", userId);
@@ -69,10 +68,10 @@ public class PrivateCommentController {
 
     }
 
-    @GetMapping("/events/{eventId}/comments")
+    @GetMapping("/events/{eventId}")
     public List<CommentToGetDto> getCommentsByEventId(@PathVariable Long userId, @PathVariable Long eventId,
-                                                      @PositiveOrZero @RequestParam Integer from,
-                                                      @Positive Integer size) {
+                                                      @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                      @Positive @RequestParam(required = false, defaultValue = "20") Integer size) {
 
         log.info("PrivateCommentController.getCommentsByEventId: received a request to get comments " +
                 "by event with id={} by user with id={}", eventId, userId);
