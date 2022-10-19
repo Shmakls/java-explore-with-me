@@ -32,4 +32,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> getFirstByCategory(Long categoryId);
 
+    @Query("select e.title from Event e where e.id = ?1")
+    String getEventTitleById(Long eventId);
+
 }

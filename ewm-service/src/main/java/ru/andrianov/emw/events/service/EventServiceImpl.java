@@ -105,4 +105,9 @@ public class EventServiceImpl implements EventService {
     public Optional<Event> getEventByCategoryId(Long categoryId) {
         return eventRepository.getFirstByCategory(categoryId);
     }
+
+    @Override
+    public String getEventTitleById(Long eventId) {
+        return eventRepository.getEventTitleById(eventId);
+    }
 }

@@ -3,16 +3,16 @@ package ru.andrianov.emw.events.mapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.andrianov.emw.categories.dto.CategoryDto;
-import ru.andrianov.emw.events.dto.EventToCompilationDto;
-import ru.andrianov.emw.events.dto.EventToCreateDto;
-import ru.andrianov.emw.events.dto.EventToGetDto;
-import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
+import ru.andrianov.emw.comment.mapper.CommentMapper;
+import ru.andrianov.emw.comment.model.CommentState;
+import ru.andrianov.emw.events.dto.*;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.Location;
 import ru.andrianov.emw.users.dto.UserInitiatorDto;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
@@ -76,6 +76,12 @@ public class EventMapper {
         eventToGetDto.setRequestModeration(event.isRequestModeration());
         eventToGetDto.setTitle(event.getTitle());
         eventToGetDto.setState(event.getState().toString());
+
+        eventToGetDto.setComments(event.getComments()
+                        .stream()
+                        .filter(x -> x.getCommentState() == CommentState.PUBLISHED)
+                        .map(CommentMapper::toGetEventDto)
+                        .collect(Collectors.toList()));
 
         return eventToGetDto;
 
