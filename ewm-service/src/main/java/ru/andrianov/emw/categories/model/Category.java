@@ -18,8 +18,7 @@ public class Category {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @OneToMany
-    @JoinColumn(name = "category_id")
-    List<Event> events;
+    @OneToMany(mappedBy = "category")
+    private List<Event> events;
 
 }

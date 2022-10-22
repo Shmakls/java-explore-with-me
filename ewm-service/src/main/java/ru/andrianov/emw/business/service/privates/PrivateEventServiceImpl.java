@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.business.helper.Checker;
 import ru.andrianov.emw.business.helper.SetterParamsToEventService;
+import ru.andrianov.emw.categories.service.CategoryService;
 import ru.andrianov.emw.events.dto.EventToCreateDto;
 import ru.andrianov.emw.events.dto.EventToGetDto;
 import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
@@ -15,6 +16,8 @@ import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.EventState;
 import ru.andrianov.emw.events.service.EventService;
 import ru.andrianov.emw.events.service.PrivateEventService;
+import ru.andrianov.emw.users.model.User;
+import ru.andrianov.emw.users.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +30,10 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
     private final EventService eventService;
 
+    private final UserService userService;
+
+    private final CategoryService categoryService;
+
     private final SetterParamsToEventService setterParamsToEventService;
 
     private final Checker checker;
@@ -36,7 +43,9 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
         checker.userExistChecker(userId);
 
-        return eventService.getEventsByUserId(userId, from, size).stream()
+        User user = userService.getUserById(userId);
+
+        return eventService.getEventsByUserId(user, from, size).stream()
                 .map(EventMapper::toGetDto)
                 .peek(setterParamsToEventService::setCategoryNameAndInitiatorName)
                 .collect(Collectors.toList());
@@ -85,10 +94,12 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         }
 
         checker.userExistChecker(userId);
+        checker.categoryChecker(eventToCreateDto.getCategory());
 
         Event event = EventMapper.toEventFromEventToCreateDto(eventToCreateDto);
 
-        event.setInitiator(userId);
+        event.setInitiator(userService.getUserById(userId));
+        event.setCategory(categoryService.getCategoryById(eventToCreateDto.getCategory()));
 
         event = eventService.addNewEvent(event);
 
@@ -105,7 +116,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
         Event event = eventService.getEventById(eventId);
 
-        checker.ownerEventChecker(userId, event.getInitiator());
+        checker.ownerEventChecker(userId, event.getInitiator().getId());
 
         return setterParamsToEventService.setCategoryNameAndInitiatorName(EventMapper.toGetDto(event));
     }
@@ -119,7 +130,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
         Event event = eventService.getEventById(eventId);
 
-        checker.ownerEventChecker(userId, event.getInitiator());
+        checker.ownerEventChecker(userId, event.getInitiator().getId());
 
         if (event.getState() != EventState.PENDING) {
             log.error("PrivateApiService.cancelEventByOwner: event state must be WAITING to cancel, your state={}",

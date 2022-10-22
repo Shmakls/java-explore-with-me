@@ -6,11 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.andrianov.emw.categories.model.Category;
 import ru.andrianov.emw.events.exceptions.EventNotFoundException;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.EventSort;
 import ru.andrianov.emw.events.model.EventState;
 import ru.andrianov.emw.events.repository.EventRepository;
+import ru.andrianov.emw.users.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,7 +63,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> searchEventsByText(String text, List<Long> categoriesId,
+    public List<Event> searchEventsByText(String text, List<Category> categories,
                                           boolean paid, LocalDateTime start, LocalDateTime end,
                                           EventSort eventSort, Integer from, Integer size) {
 
@@ -75,7 +77,7 @@ public class EventServiceImpl implements EventService {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by(fieldToSort).descending());
 
-        return eventRepository.searchEventsByTextAndParams(text, categoriesId, paid,
+        return eventRepository.searchEventsByTextAndParams(text, categories, paid,
                 start, end, pageable)
                 .getContent();
     }
@@ -86,19 +88,19 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getEventsByParams(List<Long> users, List<EventState> states,
-                                         List<Long> categories, LocalDateTime start,
+    public List<Event> getEventsByParams(List<User> users, List<EventState> states,
+                                         List<Category> categories, LocalDateTime start,
                                          LocalDateTime end, Pageable pageable) {
         return eventRepository.getEventsByInitiatorInAndStateInAndCategoryInAndEventDateBetween(
                 users, states, categories, start, end, pageable).getContent();
     }
 
     @Override
-    public List<Event> getEventsByUserId(Long userId, Integer from, Integer size) {
+    public List<Event> getEventsByUserId(User user, Integer from, Integer size) {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
 
-        return eventRepository.getEventsByInitiator(userId, pageable).getContent();
+        return eventRepository.getEventsByInitiator(user, pageable).getContent();
     }
 
     @Override

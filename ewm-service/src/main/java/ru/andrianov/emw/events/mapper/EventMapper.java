@@ -2,13 +2,14 @@ package ru.andrianov.emw.events.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.andrianov.emw.categories.dto.CategoryDto;
+import ru.andrianov.emw.categories.mapper.CategoryMapper;
+import ru.andrianov.emw.categories.model.Category;
 import ru.andrianov.emw.comment.mapper.CommentMapper;
 import ru.andrianov.emw.comment.model.CommentState;
 import ru.andrianov.emw.events.dto.*;
 import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.Location;
-import ru.andrianov.emw.users.dto.UserInitiatorDto;
+import ru.andrianov.emw.users.mapper.UserMapper;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -22,7 +23,6 @@ public class EventMapper {
         Event event = new Event();
 
         event.setAnnotation(eventToCreateDto.getAnnotation());
-        event.setCategory(eventToCreateDto.getCategory());
         event.setDescription(eventToCreateDto.getDescription());
         event.setCreatedOn(eventToCreateDto.getCreatedOn());
         event.setEventDate(eventToCreateDto.getEventDate());
@@ -43,10 +43,10 @@ public class EventMapper {
 
         eventToCompilationDto.setId(event.getId());
         eventToCompilationDto.setAnnotation(event.getAnnotation());
-        eventToCompilationDto.setCategory(new CategoryDto(event.getCategory(), null));
+        eventToCompilationDto.setCategory(CategoryMapper.toDto(event.getCategory()));
         eventToCompilationDto.setConfirmedRequests(event.getConfirmedRequests());
         eventToCompilationDto.setEventDate(event.getEventDate());
-        eventToCompilationDto.setInitiator(new UserInitiatorDto(event.getInitiator()));
+        eventToCompilationDto.setInitiator(UserMapper.toUserInitiatorDto(event.getInitiator()));
         eventToCompilationDto.setPaid(event.isPaid());
         eventToCompilationDto.setTitle(event.getTitle());
 
@@ -60,7 +60,7 @@ public class EventMapper {
 
         eventToGetDto.setId(event.getId());
         eventToGetDto.setAnnotation(event.getAnnotation());
-        eventToGetDto.setCategory(new CategoryDto(event.getCategory(), null));
+        eventToGetDto.setCategory(CategoryMapper.toDto(event.getCategory()));
         Optional.ofNullable(event.getConfirmedRequests()).ifPresent(eventToGetDto::setConfirmedRequests);
         eventToGetDto.setCreatedOn(event.getCreatedOn());
         eventToGetDto.setDescription(event.getDescription());
@@ -68,7 +68,7 @@ public class EventMapper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         eventToGetDto.setEventDate(event.getEventDate().format(formatter));
 
-        eventToGetDto.setInitiator(new UserInitiatorDto(event.getInitiator()));
+        eventToGetDto.setInitiator(UserMapper.toUserInitiatorDto(event.getInitiator()));
         eventToGetDto.setLocation(new Location(event.getLat(), event.getLon()));
         eventToGetDto.setPaid(event.isPaid());
         eventToGetDto.setParticipantLimit(event.getParticipantLimit());
@@ -97,12 +97,6 @@ public class EventMapper {
             eventToUpdate.setAnnotation(eventToUpdateByAdminDto.getAnnotation());
         } else {
             eventToUpdate.setAnnotation(event.getAnnotation());
-        }
-
-        if (!(eventToUpdateByAdminDto.getCategory() == null)) {
-            eventToUpdate.setCategory(eventToUpdateByAdminDto.getCategory());
-        } else {
-            eventToUpdate.setCategory(event.getCategory());
         }
 
         if (!(eventToUpdateByAdminDto.getDescription() == null)) {
@@ -157,6 +151,7 @@ public class EventMapper {
 
         eventToUpdate.setState(event.getState());
         eventToUpdate.setInitiator(event.getInitiator());
+        eventToUpdate.setCategory(event.getCategory());
         eventToUpdate.setConfirmedRequests(event.getConfirmedRequests());
         eventToUpdate.setPublishedOn(event.getPublishedOn());
 

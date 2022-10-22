@@ -1,8 +1,10 @@
 package ru.andrianov.emw.events.model;
 
 import lombok.Data;
+import ru.andrianov.emw.categories.model.Category;
 import ru.andrianov.emw.comment.model.Comment;
 import ru.andrianov.emw.compilations.model.Compilation;
+import ru.andrianov.emw.users.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,14 +20,14 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "initiator_id")
-    private Long initiator;
+    @ManyToOne
+    private User initiator;
 
     @Column(name = "annotation", length = 500, nullable = false)
     private String annotation;
 
-    @Column(name = "category_id")
-    private Long category;
+    @ManyToOne
+    private Category category;
 
     @Column(name = "confirmed_requests")
     private Long confirmedRequests = 0L;

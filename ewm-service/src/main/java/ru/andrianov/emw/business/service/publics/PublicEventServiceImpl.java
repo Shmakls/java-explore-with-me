@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import ru.andrianov.emw.business.helper.DateTimeStringConverter;
 import ru.andrianov.emw.business.helper.SetterParamsToEventService;
+import ru.andrianov.emw.categories.model.Category;
+import ru.andrianov.emw.categories.service.CategoryService;
 import ru.andrianov.emw.events.client.EventClient;
 import ru.andrianov.emw.events.dto.EventToGetDto;
 import ru.andrianov.emw.events.exceptions.EventNotFoundException;
@@ -33,12 +35,15 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     private final EventService eventService;
 
+    private final CategoryService categoryService;
+
     private final SetterParamsToEventService setterParamsToEventService;
 
     private final EventClient eventClient;
 
     @Autowired
     public PublicEventServiceImpl(EventService eventService,
+                                  CategoryService categoryService,
                                   SetterParamsToEventService setterParamsToEventService,
                                   EventClient eventClient,
                                   @Value("${service-app.name}") String serviceApp) {
@@ -46,6 +51,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         this.setterParamsToEventService = setterParamsToEventService;
         this.eventClient = eventClient;
         this.serviceApp = serviceApp;
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -80,7 +86,12 @@ public class PublicEventServiceImpl implements PublicEventService {
             end = DateTimeStringConverter.fromFormattedString(rangeEnd);
         }
 
-        List<Event> events = eventService.searchEventsByText(text, categoriesId, paid,
+        List<Category> categories = categoriesId
+                .stream()
+                .map(categoryService::getCategoryById)
+                .collect(Collectors.toList());
+
+        List<Event> events = eventService.searchEventsByText(text, categories, paid,
                 start, end, eventSort, from, size);
 
         Predicate<Event> onlyAvailablePredicate = event -> event.getConfirmedRequests() < event.getParticipantLimit();

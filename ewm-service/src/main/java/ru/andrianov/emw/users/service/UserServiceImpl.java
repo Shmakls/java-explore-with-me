@@ -13,7 +13,6 @@ import ru.andrianov.emw.users.model.User;
 import ru.andrianov.emw.users.repository.UserRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -23,35 +22,31 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto addNewUser(UserDto userDto) {
+    public User addNewUser(UserDto userDto) {
 
         log.info("UserService.addNewUser: send a request to DB to create new user with email={}", userDto.getEmail());
 
-        User user = userRepository.save(UserMapper.fromDto(userDto));
-
-        return UserMapper.toDto(user);
+        return userRepository.save(UserMapper.fromDto(userDto));
     }
 
     @Override
-    public List<UserDto> getUsersByIdInByPages(List<Long> ids, Integer from, Integer size) {
+    public List<User> getUsersByIdInByPages(List<Long> ids, Integer from, Integer size) {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
 
         log.info("UserService.getAllUsers: send a request to DB to get user by ids={} by pages", ids);
 
-        return userRepository.getUsersByIdIn(ids, pageable).getContent()
-                .stream()
-                .map(UserMapper::toDto)
-                .collect(Collectors.toList());
+        return userRepository.getUsersByIdIn(ids, pageable).getContent();
+
     }
 
     @Override
-    public UserDto getUserById(Long userId) {
+    public User getUserById(Long userId) {
 
         log.info("UserService.getUserById: send a request to DB to get user with id={}", userId);
 
-        return UserMapper.toDto(userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("user is not exist")));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("user is not exist"));
     }
 
     @Override

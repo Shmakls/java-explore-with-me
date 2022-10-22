@@ -1,7 +1,10 @@
 package ru.andrianov.emw.users.model;
 
 import lombok.*;
+import ru.andrianov.emw.events.model.Event;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
@@ -17,5 +20,8 @@ public class User {
 
     @Column(name = "name", length = 50, nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "initiator")
+    private List<Event> events;
 
 }

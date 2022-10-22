@@ -42,7 +42,7 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
         Event event = eventService.getEventById(eventId);
 
-        checker.ownerEventChecker(userId, event.getInitiator());
+        checker.ownerEventChecker(userId, event.getInitiator().getId());
 
         return requestService.getRequestsByEventId(eventId);
     }
@@ -55,7 +55,7 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
         Event event = eventService.getEventById(eventId);
 
-        checker.ownerEventChecker(userId, event.getInitiator());
+        checker.ownerEventChecker(userId, event.getInitiator().getId());
 
         checker.requestChecker(reqId);
 
@@ -98,7 +98,7 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
         Event event = eventService.getEventById(eventId);
 
-        checker.ownerEventChecker(userId, event.getInitiator());
+        checker.ownerEventChecker(userId, event.getInitiator().getId());
 
         checker.requestChecker(reqId);
 

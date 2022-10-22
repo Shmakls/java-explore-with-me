@@ -8,6 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.andrianov.emw.business.helper.DateTimeStringConverter;
 import ru.andrianov.emw.business.helper.SetterParamsToEventService;
+import ru.andrianov.emw.categories.model.Category;
+import ru.andrianov.emw.categories.service.CategoryService;
 import ru.andrianov.emw.events.dto.EventToGetDto;
 import ru.andrianov.emw.events.dto.EventToUpdateByAdminDto;
 import ru.andrianov.emw.events.exceptions.WrongEventStateException;
@@ -16,6 +18,8 @@ import ru.andrianov.emw.events.model.Event;
 import ru.andrianov.emw.events.model.EventState;
 import ru.andrianov.emw.events.service.AdminEventService;
 import ru.andrianov.emw.events.service.EventService;
+import ru.andrianov.emw.users.model.User;
+import ru.andrianov.emw.users.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,11 +33,15 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventService eventService;
 
+    private final UserService userService;
+
+    private final CategoryService categoryService;
+
     private final SetterParamsToEventService setterParamsToEventService;
 
     @Override
-    public List<EventToGetDto> eventSearchByAdmin(List<Long> users, List<String> states,
-                                                  List<Long> categories, String rangeStart,
+    public List<EventToGetDto> eventSearchByAdmin(List<Long> usersId, List<String> states,
+                                                  List<Long> categoriesId, String rangeStart,
                                                   String rangeEnd, Integer from, Integer size) {
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
@@ -46,6 +54,17 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+
+        List<User> users = usersId
+                .stream()
+                .map(userService::getUserById)
+                .collect(Collectors.toList());
+
+        List<Category> categories = categoriesId
+                .stream()
+                .map(categoryService::getCategoryById)
+                .collect(Collectors.toList());
+
 
         List<Event> events = eventService.getEventsByParams(users, eventStates, categories, start, end, pageable);
 
